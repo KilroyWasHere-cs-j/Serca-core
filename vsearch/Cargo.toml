@@ -4,4 +4,5 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
+elvira = { path = "./elvira/" }
 tokio = { version = "1.44.1", features = ["full"] }
