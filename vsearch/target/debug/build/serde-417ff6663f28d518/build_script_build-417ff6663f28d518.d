@@ -1,0 +1,5 @@
+/home/gt/Git/videoSearchTool/vsearch/target/debug/build/serde-417ff6663f28d518/build_script_build-417ff6663f28d518: /home/gt/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.219/build.rs
+
+/home/gt/Git/videoSearchTool/vsearch/target/debug/build/serde-417ff6663f28d518/build_script_build-417ff6663f28d518.d: /home/gt/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.219/build.rs
+
+/home/gt/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.219/build.rs:
