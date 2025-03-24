@@ -46,65 +46,14 @@ cargo:rustc-check-cfg=cfg(ossl340)
 cargo:rerun-if-env-changed=X86_64_UNKNOWN_LINUX_GNU_OPENSSL_LIB_DIR
 X86_64_UNKNOWN_LINUX_GNU_OPENSSL_LIB_DIR unset
 cargo:rerun-if-env-changed=OPENSSL_LIB_DIR
-OPENSSL_LIB_DIR unset
+OPENSSL_LIB_DIR = /nix/store/954l60hahqvr0hbs7ww6lmgkxvk8akdf-openssl-3.4.1/lib
 cargo:rerun-if-env-changed=X86_64_UNKNOWN_LINUX_GNU_OPENSSL_INCLUDE_DIR
 X86_64_UNKNOWN_LINUX_GNU_OPENSSL_INCLUDE_DIR unset
 cargo:rerun-if-env-changed=OPENSSL_INCLUDE_DIR
-OPENSSL_INCLUDE_DIR unset
-cargo:rerun-if-env-changed=X86_64_UNKNOWN_LINUX_GNU_OPENSSL_DIR
-X86_64_UNKNOWN_LINUX_GNU_OPENSSL_DIR unset
-cargo:rerun-if-env-changed=OPENSSL_DIR
-OPENSSL_DIR unset
-cargo:rerun-if-env-changed=OPENSSL_NO_PKG_CONFIG
-cargo:rerun-if-env-changed=PKG_CONFIG_x86_64-unknown-linux-gnu
-cargo:rerun-if-env-changed=PKG_CONFIG_x86_64_unknown_linux_gnu
-cargo:rerun-if-env-changed=HOST_PKG_CONFIG
-cargo:rerun-if-env-changed=PKG_CONFIG
-cargo:rerun-if-env-changed=OPENSSL_STATIC
-cargo:rerun-if-env-changed=OPENSSL_DYNAMIC
-cargo:rerun-if-env-changed=PKG_CONFIG_ALL_STATIC
-cargo:rerun-if-env-changed=PKG_CONFIG_ALL_DYNAMIC
-cargo:rerun-if-env-changed=PKG_CONFIG_PATH_x86_64-unknown-linux-gnu
-cargo:rerun-if-env-changed=PKG_CONFIG_PATH_x86_64_unknown_linux_gnu
-cargo:rerun-if-env-changed=HOST_PKG_CONFIG_PATH
-cargo:rerun-if-env-changed=PKG_CONFIG_PATH
-cargo:rerun-if-env-changed=PKG_CONFIG_LIBDIR_x86_64-unknown-linux-gnu
-cargo:rerun-if-env-changed=PKG_CONFIG_LIBDIR_x86_64_unknown_linux_gnu
-cargo:rerun-if-env-changed=HOST_PKG_CONFIG_LIBDIR
-cargo:rerun-if-env-changed=PKG_CONFIG_LIBDIR
-cargo:rerun-if-env-changed=PKG_CONFIG_SYSROOT_DIR_x86_64-unknown-linux-gnu
-cargo:rerun-if-env-changed=PKG_CONFIG_SYSROOT_DIR_x86_64_unknown_linux_gnu
-cargo:rerun-if-env-changed=HOST_PKG_CONFIG_SYSROOT_DIR
-cargo:rerun-if-env-changed=PKG_CONFIG_SYSROOT_DIR
-cargo:rerun-if-env-changed=PKG_CONFIG_SYSROOT_DIR
-cargo:rerun-if-env-changed=SYSROOT
-cargo:rerun-if-env-changed=OPENSSL_STATIC
-cargo:rerun-if-env-changed=OPENSSL_DYNAMIC
-cargo:rerun-if-env-changed=PKG_CONFIG_ALL_STATIC
-cargo:rerun-if-env-changed=PKG_CONFIG_ALL_DYNAMIC
-cargo:rustc-link-search=native=/nix/store/99cizfcv53x3mjb15cx7kmdxsglp17hc-openssl-3.4.1/lib
-cargo:rustc-link-lib=ssl
-cargo:rustc-link-lib=crypto
-cargo:rerun-if-env-changed=PKG_CONFIG_x86_64-unknown-linux-gnu
-cargo:rerun-if-env-changed=PKG_CONFIG_x86_64_unknown_linux_gnu
-cargo:rerun-if-env-changed=HOST_PKG_CONFIG
-cargo:rerun-if-env-changed=PKG_CONFIG
-cargo:rerun-if-env-changed=OPENSSL_STATIC
-cargo:rerun-if-env-changed=OPENSSL_DYNAMIC
-cargo:rerun-if-env-changed=PKG_CONFIG_ALL_STATIC
-cargo:rerun-if-env-changed=PKG_CONFIG_ALL_DYNAMIC
-cargo:rerun-if-env-changed=PKG_CONFIG_PATH_x86_64-unknown-linux-gnu
-cargo:rerun-if-env-changed=PKG_CONFIG_PATH_x86_64_unknown_linux_gnu
-cargo:rerun-if-env-changed=HOST_PKG_CONFIG_PATH
-cargo:rerun-if-env-changed=PKG_CONFIG_PATH
-cargo:rerun-if-env-changed=PKG_CONFIG_LIBDIR_x86_64-unknown-linux-gnu
-cargo:rerun-if-env-changed=PKG_CONFIG_LIBDIR_x86_64_unknown_linux_gnu
-cargo:rerun-if-env-changed=HOST_PKG_CONFIG_LIBDIR
-cargo:rerun-if-env-changed=PKG_CONFIG_LIBDIR
-cargo:rerun-if-env-changed=PKG_CONFIG_SYSROOT_DIR_x86_64-unknown-linux-gnu
-cargo:rerun-if-env-changed=PKG_CONFIG_SYSROOT_DIR_x86_64_unknown_linux_gnu
-cargo:rerun-if-env-changed=HOST_PKG_CONFIG_SYSROOT_DIR
-cargo:rerun-if-env-changed=PKG_CONFIG_SYSROOT_DIR
+OPENSSL_INCLUDE_DIR = /nix/store/ak8zw9vzaradp09j6bc4sazvl63yz2ah-openssl-3.4.1-dev/include
+cargo:rerun-if-changed=/nix/store/ak8zw9vzaradp09j6bc4sazvl63yz2ah-openssl-3.4.1-dev/include/openssl
+cargo:rustc-link-search=native=/nix/store/954l60hahqvr0hbs7ww6lmgkxvk8akdf-openssl-3.4.1/lib
+cargo:include=/nix/store/ak8zw9vzaradp09j6bc4sazvl63yz2ah-openssl-3.4.1-dev/include
 cargo:rerun-if-changed=build/expando.c
 OPT_LEVEL = Some(0)
 OUT_DIR = Some(/home/gt/Git/videoSearchTool/s_serca/target/debug/build/openssl-sys-4eefcb0d706292d4/out)
@@ -156,4 +105,13 @@ cargo:rustc-cfg=ossl111b
 cargo:rustc-cfg=ossl111c
 cargo:rustc-cfg=ossl111d
 cargo:version_number=30400010
-cargo:include=/nix/store/9lq31bk3niis5sfaaqxw8z9rxnh0x3fj-openssl-3.4.1-dev/include
+cargo:rerun-if-env-changed=X86_64_UNKNOWN_LINUX_GNU_OPENSSL_LIBS
+X86_64_UNKNOWN_LINUX_GNU_OPENSSL_LIBS unset
+cargo:rerun-if-env-changed=OPENSSL_LIBS
+OPENSSL_LIBS unset
+cargo:rerun-if-env-changed=X86_64_UNKNOWN_LINUX_GNU_OPENSSL_STATIC
+X86_64_UNKNOWN_LINUX_GNU_OPENSSL_STATIC unset
+cargo:rerun-if-env-changed=OPENSSL_STATIC
+OPENSSL_STATIC unset
+cargo:rustc-link-lib=dylib=ssl
+cargo:rustc-link-lib=dylib=crypto
