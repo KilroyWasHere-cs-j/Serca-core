@@ -6,9 +6,9 @@ use std::sync::Arc;
 use tokio::sync::Mutex;
 
 pub struct PageData {
-    meta_data: String,
-    urls: Vec<String>,
-    images: Vec<String>,
+    pub meta_data: String,
+    pub urls: Vec<String>,
+    pub media: Vec<String>,
 }
 
 pub struct Marionette {
@@ -31,66 +31,44 @@ impl Marionette {
         self
     }
 
-    pub async fn walk(&mut self, client: Arc<Mutex<Client>>) -> Result<Vec<String>> {
+    pub fn id(mut self, id: i64) -> Self {
+        self.id = id;
+        self
+    }
+
+    pub async fn walk(&mut self, client: Arc<Mutex<Client>>) -> Result<PageData> {
         let client = client.lock().await;
 
-        println!("{}", &self.url);
+        println!("{} : {}", &self.id, &self.url);
 
+        let mut page_data = PageData {
+            meta_data: "NULL".to_string(),
+            urls: Vec::new(),
+            media: Vec::new(),
+        };
         if let Err(e) = client.goto(&self.url).await {
             eprintln!("Marionette can't get to url {}", e);
-            return Ok(vec![]);
+            return Ok(page_data);
         }
 
+        //tokio::time::sleep(std::time::Duration::from_secs(3)).await;
+        println!("SUCCESS");
 
-        Ok(vec!["".to_string(), "".to_string()])
+
+        match client.source().await {
+        Ok(page_html) => {
+            let document = Html::parse_document(&page_html);
+            let selector = Selector::parse("img").unwrap();
+            for img in document.select(&selector) {
+                if let Some(src) = img.value().attr("src") {
+                        page_data.media.push(format!("{}", src));
+                }
+            }
+        }
+        Err(e) => eprintln!("Failed to get page source: {}", e),
+    }
+        Ok(page_data)
     }
 }
 
-// Extracts links from the page
-fn extract_links(body: &str, base_url: &str) -> Vec<String> {
-    let document = Html::parse_document(body);
-    let selector = Selector::parse("a").unwrap();
-    let base = url::Url::parse(base_url).unwrap();
 
-    document
-        .select(&selector)
-        .filter_map(|element| element.value().attr("href"))
-        .filter_map(|href| base.join(href).ok())
-        .map(|url| url.to_string())
-        .collect()
-}
-
-
-//fn extract_video_links(body: &str, base_url: &str) -> Result<Vec<String>> {
-//    let document = Html::parse_document(body);
-//
-//    // Selectors for video sources
-//    let video_selector = Selector::parse("video source")?;
-//    let anchor_selector = Selector::parse("a")?;
-//
-//    let base = Url::parse(base_url)?;
-//
-//    let mut links = Vec::new();
-//
-//    // Extract from <video> sources
-//    for element in document.select(&video_selector) {
-//        if let Some(src) = element.value().attr("src") {
-//            if let Ok(url) = base.join(src) {
-//                links.push(url.to_string());
-//            }
-//        }
-//    }
-//
-//    // Extract from <a> tags linking to video files
-//    for element in document.select(&anchor_selector) {
-//        if let Some(href) = element.value().attr("href") {
-//            if href.ends_with(".mp4") || href.ends_with(".webm") || href.ends_with(".m3u8") {
-//                if let Ok(url) = base.join(href) {
-//                    links.push(url.to_string());
-//                }
-//            }
-//        }
-//    }
-//
-//    Ok(links)
-//}
