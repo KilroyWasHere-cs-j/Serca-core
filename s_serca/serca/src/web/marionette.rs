@@ -1,9 +1,18 @@
 use anyhow::Result;
-use reqwest::Client;
 use scraper::Html;
 use scraper::Selector;
+use fantoccini::{Client, Locator};
+use std::sync::Arc;
+use tokio::sync::Mutex;
+
+pub struct PageData {
+    meta_data: String,
+    urls: Vec<String>,
+    images: Vec<String>,
+}
 
 pub struct Marionette {
+    id: i64,
     url: String,
     depth: u8,
 }
@@ -11,6 +20,7 @@ pub struct Marionette {
 impl Marionette {
     pub fn new() -> Self {
         Self {
+            id: 0,
             url: "https://example.com/".to_string(), 
             depth: 0,
         }
@@ -21,21 +31,19 @@ impl Marionette {
         self
     }
 
-    pub async fn walk(&mut self) -> Result<String> {
-        let client = reqwest::Client::new();
+    pub async fn walk(&mut self, client: Arc<Mutex<Client>>) -> Result<Vec<String>> {
+        let client = client.lock().await;
 
-        let response = client
-            .get(self.url.clone())  // Replace with actual Squarespace site
-            .header("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36")
-            .send()
-            .await?;
-        Ok(response.text().await?)
+        println!("{}", &self.url);
+
+        if let Err(e) = client.goto(&self.url).await {
+            eprintln!("Marionette can't get to url {}", e);
+            return Ok(vec![]);
+        }
+
+
+        Ok(vec!["".to_string(), "".to_string()])
     }
-}
-
-async fn fetch_page(client: &Client, url: &str) -> Result<String, reqwest::Error> {
-    let resp = client.get(url).send().await?.text().await?;
-    Ok(resp)
 }
 
 // Extracts links from the page
@@ -52,3 +60,37 @@ fn extract_links(body: &str, base_url: &str) -> Vec<String> {
         .collect()
 }
 
+
+//fn extract_video_links(body: &str, base_url: &str) -> Result<Vec<String>> {
+//    let document = Html::parse_document(body);
+//
+//    // Selectors for video sources
+//    let video_selector = Selector::parse("video source")?;
+//    let anchor_selector = Selector::parse("a")?;
+//
+//    let base = Url::parse(base_url)?;
+//
+//    let mut links = Vec::new();
+//
+//    // Extract from <video> sources
+//    for element in document.select(&video_selector) {
+//        if let Some(src) = element.value().attr("src") {
+//            if let Ok(url) = base.join(src) {
+//                links.push(url.to_string());
+//            }
+//        }
+//    }
+//
+//    // Extract from <a> tags linking to video files
+//    for element in document.select(&anchor_selector) {
+//        if let Some(href) = element.value().attr("href") {
+//            if href.ends_with(".mp4") || href.ends_with(".webm") || href.ends_with(".m3u8") {
+//                if let Ok(url) = base.join(href) {
+//                    links.push(url.to_string());
+//                }
+//            }
+//        }
+//    }
+//
+//    Ok(links)
+//}

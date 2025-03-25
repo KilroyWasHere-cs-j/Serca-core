@@ -6,7 +6,10 @@ use tokio;
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("Launching Puppeteer");
     let puppeteer = Puppeteer::new();
-    puppeteer.control().await;
+    puppeteer.await.control().await;
+    loop {
+
+    }
     Ok(())
 }
 

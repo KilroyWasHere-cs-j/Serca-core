@@ -6,8 +6,10 @@ use std::fs::read_to_string;
 use std::sync::Arc;
 use tokio::sync::Mutex;
 use std::collections::HashSet;
+use fantoccini::{Client, Locator};
 
 pub struct Puppeteer {
+    client: Arc<Mutex<Client>>,
     url_db: Vec<String>,
     max: i64,
     marionettes: Vec<Marionette>,
@@ -15,7 +17,7 @@ pub struct Puppeteer {
 }
 
 impl Puppeteer {
-    pub fn new() -> Self {
+    pub async fn new() -> Self {
         let contents = read_to_string("urls.txt").expect("Damnit");
         let lines: Vec<String> = contents
             .lines()
@@ -23,6 +25,7 @@ impl Puppeteer {
             .collect();
 
         Puppeteer {
+            client: Arc::new(Mutex::new(Client::new("http://localhost:4444").await.expect("10 bucks says geckodriver isn't running and/or isn't installed"))),
             url_db: lines,
             max: 5,
             marionettes: Vec::new(),
@@ -39,19 +42,21 @@ impl Puppeteer {
         let mut marionettes = vec![];
 
         for url in self.url_db {
+            let client_clone = Arc::clone(&self.client);
             let marionette = tokio::spawn(async move {
                 let mut marionette = Marionette::new()
                     .url(url);
-                let html = marionette.walk().await; 
-                println!("Marionette alive");
+                let html = marionette.walk(client_clone).await; 
             });
             marionettes.push(marionette);
         }
-        
+
+        // TODO need to handle this correctly
+        //self.client.lock().await.close().await.expect("Failed to close client");
+
         for marionette in marionettes {
-            marionette.await.unwrap();
+            marionette.await.expect("Marionette failed to close up properly");
         }
     }
 }
-
 
