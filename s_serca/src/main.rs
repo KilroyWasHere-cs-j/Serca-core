@@ -5,6 +5,7 @@ use std::path::Path;
 use std::fs::File;
 use std::io::prelude::*;
 use anyhow::Result;
+use std::process::Command;
 
 fn create_file(path: &str) -> Result<()> {
     let mut file = File::create(path)?;
@@ -39,9 +40,18 @@ fn setup() -> Result<()> {
         println!("media_found_cache_file is valid");
     } else {
         println!("media_found_cache_file not in this bag");
-        create_file(media_found_cache_file.to_str().unwrap());
+        let _ = create_file(media_found_cache_file.to_str().unwrap());
         println!("We made for you. Your welcome.");
     }
+
+    println!("All file tests passed with flying colors");
+
+    //println!("Starting geckodriver");
+
+    //Command::new("cmd")
+    //    .args(["geckodriver"])
+    //    .output()
+    //    .expect("failed to execute process");
     Ok(())
 }
 
@@ -50,8 +60,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("Running setup...");
     let _ = setup();
     println!("Launching Puppeteer");
+
     let puppeteer = Puppeteer::new();
     puppeteer.await.control().await;
+
+    println!("DONE");
     Ok(())
 }
 

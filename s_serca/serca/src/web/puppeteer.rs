@@ -48,6 +48,7 @@ impl Puppeteer {
         let mut marionettes = vec![];
 
         for url in self.url_db {
+            log_spent_url(&url);
             self.c_total += 1;
             println!("New Marionette spawned. Count is now {}", self.c_total);
             let client_clone = Arc::clone(&self.client);
@@ -67,6 +68,17 @@ impl Puppeteer {
             marionette.await.expect("Marionette failed to close up properly");
         }
     }
+}
+
+fn log_spent_url(url: &str) -> Result<()> {
+    println!("Logging url");
+    let mut file = OpenOptions::new()
+        .create(true)
+        .append(true)
+        .open("spent_urls.txt")?;
+
+    writeln!(file, "{}", format!("{}", url));
+    Ok(())
 }
 
 fn dump_from_file() -> Result<()> {
