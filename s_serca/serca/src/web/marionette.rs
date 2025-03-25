@@ -58,10 +58,22 @@ impl Marionette {
         match client.source().await {
         Ok(page_html) => {
             let document = Html::parse_document(&page_html);
-            let selector = Selector::parse("img").unwrap();
-            for img in document.select(&selector) {
+
+            // Select images
+            let img_selector = Selector::parse("img").unwrap();
+            for img in document.select(&img_selector) {
                 if let Some(src) = img.value().attr("src") {
-                        page_data.media.push(format!("{}", src));
+                        println!("Found new media {:?}", src.to_string());
+                        page_data.media.push(src.to_string());
+                }
+            }
+
+            // Select links (page URLs)
+            let link_selector = Selector::parse("a").unwrap();
+            for link in document.select(&link_selector) {
+                if let Some(href) = link.value().attr("href") {
+                        println!("Found new url {:?}", href.to_string());
+                        page_data.urls.push(href.to_string());
                 }
             }
         }

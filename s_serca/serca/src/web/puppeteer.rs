@@ -81,7 +81,7 @@ fn log_spent_url(url: &str) -> Result<()> {
     Ok(())
 }
 
-fn dump_from_file() -> Result<()> {
+fn dump_file() -> Result<()> {
     Ok(())
 }
 
@@ -94,8 +94,17 @@ fn flush_to_file(page_data: PageData) -> Result<()> {
         .open("found_media.txt")?;
 
     writeln!(file, "{}", format!("{}", "{------------------------------------------------}"));
-    writeln!(file, "{}", format!("URLs -> {:?} : MEDIA -> {:?}", page_data.urls, page_data.media))?;
+    writeln!(file, "{}", format!("MEDIA -> {:?}", page_data.media))?;
     writeln!(file, "{}", format!("{}", "{------------------------------------------------}"));
 
+    let mut s_file = OpenOptions::new()
+        .create(true)
+        .append(true)
+        .open("found_urls.txt")?;
+
+    for url in page_data.urls {
+        writeln!(s_file, "{}", format!("{:?}", url));
+    }
+    
     Ok(())
 }
