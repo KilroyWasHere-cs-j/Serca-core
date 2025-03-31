@@ -1,7 +1,0 @@
-[package]
-name = "vsearch"
-version = "0.1.0"
-edition = "2021"
-
-[dependencies]
-tokio = { version = "1.44.1", features = ["full"] }
