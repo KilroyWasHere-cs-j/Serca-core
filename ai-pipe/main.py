@@ -12,6 +12,8 @@ def main():
     image = "bagel.jpg"
     output = "NULL"
 
+    model_id, prompt = utils.load
+
     lava = pipe.Lava()
     lava.load_model()
     lava.load_image(image)
