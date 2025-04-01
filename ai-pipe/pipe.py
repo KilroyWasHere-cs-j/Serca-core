@@ -7,11 +7,10 @@ from transformers import pipeline
 from colorama import Fore, Back, Style
 
 class Lava:
-    def __init__(self, model_id, prompt, path):
+    def __init__(self, model_id, prompt):
         self.model = 0
         self.model_id = model_id[0]
         self.prompt = prompt[0]
-        self.path = path
         self.processor = 0
         self.device = 0
         self.image = 0
@@ -29,10 +28,8 @@ class Lava:
         self.device = "cuda" if torch.cuda.is_available() else "cpu"
         self.model.to(self.device)
 
-    def load_image(self):
-        self.image = Image.open(self.path).convert("RGB")
-
-    def inference(self):
+    def inference(self, image):
+        self.image = image
         inputs = self.processor(text=self.prompt, images=self.image, return_tensors="pt").to(self.device) # Move inputs to GPU
         try:
             with torch.no_grad():

@@ -1,24 +1,18 @@
 # main.py
 import utils
-import pipe
 import torch
-from pipe import Lava
 from colorama import Fore, Back, Style
+import streamer
+import pipe
+from pipe import Lava
+
 
 
 def main():
-
-    image_path = "images/bagel.jpg"
-    output = "NULL"
     prompt, model_id = utils.load()
-
-    lava = pipe.Lava(model_id=model_id, prompt=prompt, path=image_path)
+    lava = pipe.Lava(model_id=model_id, prompt=prompt)
     lava.load_model()
-    lava.load_image()
-    output = lava.inference()
-    print(Fore.GREEN)
-    print(output)
-    print(Fore.WHITE)
+    print(streamer.run_vid(url="https://a.nwps.fi/15301218273763.mp4", model=lava))
     
 if __name__ == "__main__":
     main()
