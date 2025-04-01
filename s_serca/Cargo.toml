@@ -5,7 +5,11 @@ edition = "2024"
 
 [dependencies]
 anyhow = "1.0.97"
-reqwest = "0.12.15"
+futures = "0.3.31"
+reqwest = { version = "0.12.15", features = ["stream"] }
 scraper = "0.23.1"
-serca = { path = "./serca/" }
 tokio = { version = "1", features = ["full"] }
+tokio-util = { version = "0.7", features = ["codec"] }
+ffmpeg-sys-next = "6.0" # Or the latest version
+libc = "0.2"
+# opencv = "0.85"

@@ -1,11 +1,14 @@
-use serca;
-use serca::web::puppeteer::Puppeteer;
 use tokio;
 use std::path::Path;
 use std::fs::File;
 use std::io::prelude::*;
 use anyhow::Result;
 use std::process::Command;
+
+mod media;
+
+use crate::media::streamer::{ stream_frames };
+use crate::media::ripper;
 
 fn create_file(path: &str) -> Result<()> {
     let mut file = File::create(path)?;
@@ -15,11 +18,7 @@ fn create_file(path: &str) -> Result<()> {
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    println!("Launching Puppeteer");
-
-    let puppeteer = Puppeteer::new();
-    puppeteer.await.control().await;
-
+    stream_frames("https://a.nwps.fi/1399544348751.jpg").await;
     println!("DONE");
     Ok(())
 }

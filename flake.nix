@@ -16,6 +16,8 @@
           cargo
           pkg-config
           openssl
+          llvmPackages_latest.clang
+          ffmpeg 
         ];
 
         shellHook = ''
