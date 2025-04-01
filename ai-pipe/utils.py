@@ -1,4 +1,5 @@
 import torch
+import winreg as wrg 
 
 def validate():
     print(torch.cuda.is_available())
