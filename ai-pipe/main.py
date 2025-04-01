@@ -8,7 +8,7 @@ from colorama import Fore, Back, Style
 
 def main():
 
-    image_path = "bagel.jpg"
+    image_path = "images/bagel.jpg"
     output = "NULL"
     prompt, model_id = utils.load()
 
