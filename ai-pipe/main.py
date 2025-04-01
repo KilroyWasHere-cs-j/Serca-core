@@ -3,20 +3,22 @@ import utils
 import pipe
 import torch
 from pipe import Lava
+from colorama import Fore, Back, Style
+
 
 def main():
-    # processor, model, device = pipe.load_model()
-    # image = pipe.load_image("bagel.jpg")
-    # pipe.inference(processor=processor, device=device, model=model, image=image)
 
-    image = "bagel.jpg"
+    image_path = "bagel.jpg"
     output = "NULL"
+    prompt, model_id = utils.load()
 
-    lava = pipe.Lava()
+    print(Fore.GREEN)
+    lava = pipe.Lava(model_id=model_id, prompt=prompt, path=image_path)
     lava.load_model()
-    lava.load_image(image)
+    lava.load_image()
     output = lava.inference()
     print(output)
+    print(Fore.WHITE)
     
 if __name__ == "__main__":
     main()
