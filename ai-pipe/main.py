@@ -8,15 +8,15 @@ from colorama import Fore, Back, Style
 
 def main():
 
-    image_path = "bagel.jpg"
+    image_path = "images/bagel.jpg"
     output = "NULL"
     prompt, model_id = utils.load()
 
-    print(Fore.GREEN)
     lava = pipe.Lava(model_id=model_id, prompt=prompt, path=image_path)
     lava.load_model()
     lava.load_image()
     output = lava.inference()
+    print(Fore.GREEN)
     print(output)
     print(Fore.WHITE)
     
