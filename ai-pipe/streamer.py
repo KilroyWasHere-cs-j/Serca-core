@@ -22,8 +22,8 @@ def test_img(url):
             print("Could not decode image")
             exit()
 
-        cv2.imshow('Frame', cap)
-        cv2.waitKey(0)
+        # cv2.imshow('Frame', cap)
+        # cv2.waitKey(0)
 
     except requests.exceptions.RequestException as e:
         print(f"Error fetching URL: {e}")
@@ -31,6 +31,7 @@ def test_img(url):
     cv2.destroyAllWindows()
 
 def run_vid(url, model):
+
     output = "NULL"
     frame_count = 0
     cap = cv2.VideoCapture(url)
@@ -46,7 +47,7 @@ def run_vid(url, model):
 
         output += model.inference(image=frame)
 
-        cv2.imshow('Frame', frame)
+        # cv2.imshow('Frame', frame)
         frame_count += 1
         print(f"Frame count {frame_count:04d}")
 

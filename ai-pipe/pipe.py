@@ -1,7 +1,6 @@
 from transformers import AutoProcessor, AutoModelForVision2Seq
 from PIL import Image
 import torch
-import requests
 from transformers import BitsAndBytesConfig
 from transformers import pipeline
 from colorama import Fore, Back, Style
@@ -47,3 +46,30 @@ class Lava:
             print(Fore.RED + "Runtime Error during generation:", e)
             print(Fore.WHITE)
             return e
+        
+class LLama:
+    def __init__(self, model_id):
+        self.model_id = model_id
+        self.model = 0
+        self.prompt = 0
+
+    def load_model(self):
+        model_id = "meta-llama/Llama-3.2-1B"
+
+        pipe = pipeline(
+            "text-generation", 
+            model=model_id, 
+            torch_dtype=torch.bfloat16, 
+            device_map="auto"
+        )
+        self.model = pipe
+    
+    def inference(self, prompt):
+        prompt = "Summarize this, but forget the prompting, just focus on the stuff in-between ASSISTANT: and USER: " + prompt
+        outputs = self.model(
+            prompt,
+            max_length=200,  # Example: limit output length
+            num_beams=5,      # Example: use beam search
+            do_sample=False   # Example: deterministic output
+        )
+        return outputs[0]['generated_text']
