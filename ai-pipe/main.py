@@ -6,7 +6,7 @@ quantization_config = BitsAndBytesConfig(
     bnb_4bit_compute_dtype=torch.float16
 )
 
-processor = LlavaNextVideoProcessor.from_pretrained("llava-hf/LLaVA-NeXT-Video-7B-hf");,
+processor = LlavaNextVideoProcessor.from_pretrained("llava-hf/LLaVA-NeXT-Video-7B-hf")
 model = LlavaNextVideoForConditionalGeneration.from_pretrained(
     "llava-hf/LLaVA-NeXT-Video-7B-hf",
     quantization_config=quantization_config,
