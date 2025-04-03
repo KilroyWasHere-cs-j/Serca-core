@@ -63,29 +63,30 @@ print("Did all the video crap")
 
 # Each "content" is a list of dicts and you can add image/video/text modalities
 conversation = [
-      {
-          "role": "user",
-          "content": [
-              {"type": "text", "text": "Why is this video funny?"},
-              {"type": "video"},
-              ],
-      },
-]
-
-conversation_2 = [
-      {
+  {
           "role": "user",
           "content": [
               {"type": "text", "text": "What do you see in this video?"},
               {"type": "video"},
               ],
       },
+      {
+          "role": "assistant",
+          "content": [
+              {"type": "text", "text": "I see a baby reading a book."},
+              ],
+      },
+      {
+          "role": "user",
+          "content": [
+              {"type": "text", "text": "Why is it funny?"},
+              ],
+      },
 ]
 
 prompt = processor.apply_chat_template(conversation, add_generation_prompt=True)
-prompt_2 = processor.apply_chat_template(conversation_2, add_generation_prompt=True)
 
-inputs = processor([prompt, prompt_2], videos=[clip_baby, clip_karate], padding=True, return_tensors="pt").to(model.device)
+inputs = processor([prompt], videos=[clip_baby], padding=True, return_tensors="pt").to(model.device)
 
 generate_kwargs = {"max_new_tokens": 100, "do_sample": True, "top_p": 0.9}
 
