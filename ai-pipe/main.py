@@ -58,3 +58,48 @@ container = av.open(video_path_2)
 total_frames = container.streams.video[0].frames
 indices = np.arange(0, total_frames, total_frames / 8).astype(int)
 clip_karate = read_video_pyav(container, indices)
+
+
+import requests
+from PIL import Image
+
+image_stop = Image.open(requests.get("https://www.ilankelman.org/stopsigns/australia.jpg", stream=True).raw)
+image_snowman = Image.open(requests.get("https://huggingface.co/microsoft/kosmos-2-patch14-224/resolve/main/snowman.jpg", stream=True).raw)
+
+import requests
+
+image_stop = Image.open(requests.get("https://www.ilankelman.org/stopsigns/australia.jpg", stream=True).raw)
+image_snowman = Image.open(requests.get("https://huggingface.co/microsoft/kosmos-2-patch14-224/resolve/main/snowman.jpg", stream=True).raw)
+
+# Each "content" is a list of dicts and you can add image/video/text modalities
+conversation = [
+      {
+          "role": "user",
+          "content": [
+              {"type": "text", "text": "Why is this video funny?"},
+              {"type": "video"},
+              ],
+      },
+]
+
+conversation_2 = [
+      {
+          "role": "user",
+          "content": [
+              {"type": "text", "text": "What do you see in this video?"},
+              {"type": "video"},
+              ],
+      },
+]
+
+prompt = processor.apply_chat_template(conversation, add_generation_prompt=True)
+prompt_2 = processor.apply_chat_template(conversation_2, add_generation_prompt=True)
+
+inputs = processor([prompt, prompt_2], videos=[clip_baby, clip_karate], padding=True, return_tensors="pt").to(model.device)
+
+generate_kwargs = {"max_new_tokens": 100, "do_sample": True, "top_p": 0.9}
+
+output = model.generate(**inputs, **generate_kwargs)
+generated_text = processor.batch_decode(output, skip_special_tokens=True)
+
+print(generated_text)
