@@ -44,6 +44,7 @@ from huggingface_hub import hf_hub_download
 video_path_1 = hf_hub_download(repo_id="raushan-testing-hf/videos-test", filename="sample_demo_1.mp4", repo_type="dataset")
 video_path_2 = hf_hub_download(repo_id="raushan-testing-hf/videos-test", filename="karate.mp4", repo_type="dataset")
 
+print("Downloaded videos")
 container = av.open(video_path_1)
 
 # sample uniformly 8 frames from the video (we can sample more for longer videos)
@@ -58,18 +59,7 @@ container = av.open(video_path_2)
 total_frames = container.streams.video[0].frames
 indices = np.arange(0, total_frames, total_frames / 8).astype(int)
 clip_karate = read_video_pyav(container, indices)
-
-
-import requests
-from PIL import Image
-
-image_stop = Image.open(requests.get("https://www.ilankelman.org/stopsigns/australia.jpg", stream=True).raw)
-image_snowman = Image.open(requests.get("https://huggingface.co/microsoft/kosmos-2-patch14-224/resolve/main/snowman.jpg", stream=True).raw)
-
-import requests
-
-image_stop = Image.open(requests.get("https://www.ilankelman.org/stopsigns/australia.jpg", stream=True).raw)
-image_snowman = Image.open(requests.get("https://huggingface.co/microsoft/kosmos-2-patch14-224/resolve/main/snowman.jpg", stream=True).raw)
+print("Did all the video crap")
 
 # Each "content" is a list of dicts and you can add image/video/text modalities
 conversation = [
