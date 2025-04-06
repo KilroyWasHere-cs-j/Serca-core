@@ -40,6 +40,9 @@ I am in the process of creating a LLC to support this project. At that point I w
 * Python 3.8+
 * rust
 * pip (Python package installer)
+* Cuda
+* Geckodriver
+
 
 ### Installation
 
@@ -50,41 +53,24 @@ I am in the process of creating a LLC to support this project. At that point I w
     cd Serca-core
     ```
 
-2.  **Set Up a Virtual Environment (Recommended):**
+## Serca-core Python
 
-    ```bash
-    python -m venv venv
-    source venv/bin/activate  # On macOS/Linux
-    venv\Scripts\activate  # On Windows
+1. **Clone the Repository**
+
+## Serca-core Rust
+
+1 . **Geckodriver**
+
+    ```
+    The installation of Geckodriver is gonna depend on the host machines OS. Please see the Geckodriver GitHub repo to determine your installation path.
+    https://github.com/mozilla/geckodriver
     ```
 
-3.  **Install Dependencies:**
+2. **Run scraping**
 
-    ```bash
-    pip install -r requirements.txt
-    ```
-
-    *(Make sure you have a `requirements.txt` file listing the necessary Python packages, including the Elasticsearch client.)*
-
-4.  **Configuration:**
-
-    * Copy the example configuration file:
-
-        ```bash
-        cp config.example.yaml config.yaml
-        ```
-
-    * Edit `config.yaml` to configure your Elasticsearch connection details, API settings, and other core parameters. Refer to the comments within the file for guidance.
-
-5.  **Run Serca-core (Basic Example):**
-
-    Assuming you have an Elasticsearch instance running on `localhost:9200` (or as configured in `config.yaml`), you can start a basic indexing and search example:
-
-    ```bash
-    python examples/basic_search.py
-    ```
-
-    *(This example script should demonstrate indexing a few sample files and performing a basic search. You'll need to create this `examples/basic_search.py` file.)*
+   ```bash
+   cd serca-
+   ```
 
 ## Contributing
 
