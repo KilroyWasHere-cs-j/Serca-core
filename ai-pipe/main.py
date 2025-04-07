@@ -1,24 +1,96 @@
-# main.py
-import utils
-import pipe
+from transformers import BitsAndBytesConfig, LlavaNextVideoForConditionalGeneration, LlavaNextVideoProcessor
 import torch
-from pipe import Lava
-from colorama import Fore, Back, Style
+
+quantization_config = BitsAndBytesConfig(
+    load_in_4bit=True,
+    bnb_4bit_compute_dtype=torch.float16
+)
+
+processor = LlavaNextVideoProcessor.from_pretrained("llava-hf/LLaVA-NeXT-Video-7B-hf")
+model = LlavaNextVideoForConditionalGeneration.from_pretrained(
+    "llava-hf/LLaVA-NeXT-Video-7B-hf",
+    quantization_config=quantization_config,
+    device_map='auto'
+)
+
+import av
+import numpy as np
+
+def read_video_pyav(container, indices):
+    '''
+    Decode the video with PyAV decoder.
+
+    Args:
+        container (av.container.input.InputContainer): PyAV container.
+        indices (List[int]): List of frame indices to decode.
+
+    Returns:
+        np.ndarray: np array of decoded frames of shape (num_frames, height, width, 3).
+    '''
+    frames = []
+    container.seek(0)
+    start_index = indices[0]
+    end_index = indices[-1]
+    for i, frame in enumerate(container.decode(video=0)):
+        if i > end_index:
+            break
+        if i >= start_index and i in indices:
+            frames.append(frame)
+    return np.stack([x.to_ndarray(format="rgb24") for x in frames])
+
+from huggingface_hub import hf_hub_download
+
+# Download video from the hub
+video_path_1 = hf_hub_download(repo_id="raushan-testing-hf/videos-test", filename="sample_demo_1.mp4", repo_type="dataset")
+video_path_2 = hf_hub_download(repo_id="raushan-testing-hf/videos-test", filename="karate.mp4", repo_type="dataset")
+
+print("Downloaded videos")
+container = av.open(video_path_1)
+
+# sample uniformly 8 frames from the video (we can sample more for longer videos)
+total_frames = container.streams.video[0].frames
+indices = np.arange(0, total_frames, total_frames / 8).astype(int)
+clip_baby = read_video_pyav(container, indices)
 
 
-def main():
+container = av.open(video_path_2)
 
-    image_path = "images/bagel.jpg"
-    output = "NULL"
-    prompt, model_id = utils.load()
+# sample uniformly 8 frames from the video (we can sample more for longer videos)
+total_frames = container.streams.video[0].frames
+indices = np.arange(0, total_frames, total_frames / 8).astype(int)
+clip_karate = read_video_pyav(container, indices)
+print("Did all the video crap")
 
-    lava = pipe.Lava(model_id=model_id, prompt=prompt, path=image_path)
-    lava.load_model()
-    lava.load_image()
-    output = lava.inference()
-    print(Fore.GREEN)
-    print(output)
-    print(Fore.WHITE)
-    
-if __name__ == "__main__":
-    main()
+# Each "content" is a list of dicts and you can add image/video/text modalities
+conversation = [
+  {
+          "role": "user",
+          "content": [
+              {"type": "text", "text": "What do you see in this video?"},
+              {"type": "video"},
+              ],
+      },
+      {
+          "role": "assistant",
+          "content": [
+              {"type": "text", "text": "I see a baby reading a book."},
+              ],
+      },
+      {
+          "role": "user",
+          "content": [
+              {"type": "text", "text": "Why is it funny?"},
+              ],
+      },
+]
+
+prompt = processor.apply_chat_template(conversation, add_generation_prompt=True)
+
+inputs = processor([prompt], videos=[clip_baby], padding=True, return_tensors="pt").to(model.device)
+
+generate_kwargs = {"max_new_tokens": 100, "do_sample": True, "top_p": 0.9}
+
+output = model.generate(**inputs, **generate_kwargs)
+generated_text = processor.batch_decode(output, skip_special_tokens=True)
+
+print(generated_text)
