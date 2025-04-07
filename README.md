@@ -35,6 +35,10 @@ bc1qtk5ffv36hlguj9q2h6687reuaqmyqtfzv8utwv - BTC
 **Donations Note**
 I am in the process of creating a LLC to support this project. At that point I will switch all funding sources to there, for now it's a case of "Trust Me Bro". I will update this when that is correctly working.
 
+### Matrix
+Link to the Matrix room is here.
+[Matrix](https://matrix.to/#/#serca_browser:matrix.org)
+
 ### Prerequisites
 
 * Python 3.8+
