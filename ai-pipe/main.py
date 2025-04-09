@@ -78,18 +78,6 @@ conversation = [
               {"type": "video"},
               ],
       },
-      {
-          "role": "assistant",
-          "content": [
-              {"type": "text", "text": "I see a baby reading a book."},
-              ],
-      },
-      {
-          "role": "user",
-          "content": [
-              {"type": "text", "text": "Why is it funny?"},
-              ],
-      },
 ]
 
 # Generate the prompt
@@ -99,7 +87,7 @@ prompt = processor.apply_chat_template(conversation, add_generation_prompt=True)
 inputs = processor([prompt], videos=[clip], padding=True, return_tensors="pt").to(model.device)
 
 # Generate output from the model
-generate_kwargs = {"max_new_tokens": 100, "do_sample": True, "top_p": 0.9}
+generate_kwargs = {"max_new_tokens": 500, "do_sample": True, "top_p": 0.9}
 output = model.generate(**inputs, **generate_kwargs)
 
 # Decode the output
