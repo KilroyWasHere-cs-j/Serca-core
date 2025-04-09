@@ -61,7 +61,7 @@ capture = stream_video_opencv(video_url)
 
 # Get total frames and sample uniformly 8 frames
 total_frames = int(capture.get(cv2.CAP_PROP_FRAME_COUNT))
-indices = np.arange(0, total_frames, total_frames / 8).astype(int)
+indices = np.arange(0, total_frames, total_frames / 80).astype(int)
 
 # Read sampled frames from the video
 clip = read_video_opencv(capture, indices)
@@ -87,7 +87,7 @@ prompt = processor.apply_chat_template(conversation, add_generation_prompt=True)
 inputs = processor([prompt], videos=[clip], padding=True, return_tensors="pt").to(model.device)
 
 # Generate output from the model
-generate_kwargs = {"max_new_tokens": 500, "do_sample": True, "top_p": 0.9}
+generate_kwargs = {"max_new_tokens": 100, "do_sample": True, "top_p": 0.9}
 output = model.generate(**inputs, **generate_kwargs)
 
 # Decode the output
