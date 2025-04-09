@@ -4,6 +4,7 @@ import io
 import numpy as np
 from pipe import Lava
 
+
 def test_img(url):
 
     try:
@@ -47,7 +48,7 @@ def run_vid(url, model):
 
         output += model.inference(image=frame)
 
-        # cv2.imshow('Frame', frame)
+        cv2.imshow('Frame', frame)
         frame_count += 1
         print(f"Frame count {frame_count:04d}")
 
