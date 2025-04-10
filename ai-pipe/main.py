@@ -10,8 +10,10 @@ from PIL import Image
 import copy
 import torch
 import warnings
+from halo import Halo
 
 path = "descriptions.txt"
+spinner = Halo(text='Processing frames', spinner='dots')
 
 warnings.filterwarnings("ignore")
 
@@ -33,8 +35,9 @@ prompt_question = conv.get_prompt()
 
 def process_frames(frames):
     output = ""
-    print("Processing frame")
+    spinner.start()
     for frame in frames:
+        print("Processing frame")
         image_tensor = process_images([frame], image_processor, model.config)
         image_tensor = [_image.to(dtype=torch.float16, device=device) for _image in image_tensor]
 
@@ -51,7 +54,7 @@ def process_frames(frames):
         )
 
         output = tokenizer.batch_decode(cont, skip_special_tokens=True)
-
+    spinner.stop()
     return output
 
 def grab_frames(url, frame_snaps):
@@ -61,7 +64,8 @@ def grab_frames(url, frame_snaps):
     frames = []
     # Initialize video stream
     cap = cv2.VideoCapture(video_url)
-    print("Grabbing frames")
+    print("Caching videos")
+    print(video_url)
     print(video_url)
     while True:
         print(frame_count)
@@ -76,7 +80,6 @@ def grab_frames(url, frame_snaps):
             rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
             pil_image = Image.fromarray(rgb_frame)
             frames.append(pil_image)
-            print("Apended frame")
             # Display the frame with inference result (you can adjust this to show other info)
             # cv2.putText(frame, str(frame_count), (50, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2, cv2.LINE_AA)
             # Show the processed frame
@@ -86,7 +89,7 @@ def grab_frames(url, frame_snaps):
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
 
-    print("Finished grabbing frames")
+    print("All cached")
     # Release the video capture object
     cap.release()
     cv2.destroyAllWindows()
@@ -99,7 +102,7 @@ def push_into_file(url, description):
     file1.write("--")
     file1.write(url)
     file1.write("\n")
-    file1.write(description)
+    file1.write(str(description))
     file1.close()
 
 #  Follow these links at your own risk, no malware just odd ass videos
@@ -108,6 +111,7 @@ def main():
     for url in urls:
         # Grab frames from the video at url
         frames = grab_frames(url, 15)
+        print("Total frames")
         print(len(frames))
         description = process_frames(frames=frames)
         push_into_file(url=url, description=description)
