@@ -6,6 +6,12 @@ import cv2
 
 path = "descriptions.txt"
 
+def process_frames(frames):
+    outout = ""
+    for frame in frames:
+        output += inference(frame)
+
+    return output
 
 def grab_frames(url, frame_snaps):
     video_url = url
@@ -30,7 +36,6 @@ def grab_frames(url, frame_snaps):
             cv2.putText(frame, str(frame_count), (50, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2, cv2.LINE_AA)
             # Show the processed frame
             cv2.imshow("Video Streaming with Inference", frame)
-            inference(frame)
         frame_count += 1
 
         if cv2.waitKey(1) & 0xFF == ord('q'):
