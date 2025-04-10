@@ -24,6 +24,7 @@ def grab_frames(url, frame_snaps):
     print("Grabbing frames")
     print(video_url)
     while True:
+        print(frame_count)
         # Capture frame-by-frame from the video
         ret, frame = cap.read()
         # If a frame is read correctly, ret will be True
@@ -31,7 +32,7 @@ def grab_frames(url, frame_snaps):
             print("Failed to grab frame")
             break
 
-        if frame_count % frame_inc == 0:
+        if frame_count % 15 == 0:
             frames.append(frame)
             print("aApended frame")
             # Display the frame with inference result (you can adjust this to show other info)
