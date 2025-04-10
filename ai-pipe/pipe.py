@@ -51,4 +51,4 @@ def inference(image):
     )
 
     text_outputs = tokenizer.batch_decode(cont, skip_special_tokens=True)
-    return text_outputs
+    return str(text_outputs)

@@ -7,7 +7,7 @@ import cv2
 path = "descriptions.txt"
 
 def process_frames(frames):
-    outout = ""
+    output = ""
     print("Processing frame")
     for frame in frames:
         output += inference(frame)
@@ -34,7 +34,7 @@ def grab_frames(url, frame_snaps):
 
         if frame_count % 15 == 0:
             frames.append(frame)
-            print("aApended frame")
+            print("Apended frame")
             # Display the frame with inference result (you can adjust this to show other info)
             cv2.putText(frame, str(frame_count), (50, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2, cv2.LINE_AA)
             # Show the processed frame
