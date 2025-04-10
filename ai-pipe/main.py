@@ -1,6 +1,5 @@
 # main.py
 # TODO Switch to ffmpeg
-from pipe import inference
 from colorama import Fore, Back, Style
 import cv2
 from llava.model.builder import load_pretrained_model
@@ -8,7 +7,6 @@ from llava.mm_utils import process_images, tokenizer_image_token
 from llava.constants import IMAGE_TOKEN_INDEX, DEFAULT_IMAGE_TOKEN
 from llava.conversation import conv_templates
 from PIL import Image
-import requests
 import copy
 import torch
 import warnings
