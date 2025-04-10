@@ -67,7 +67,6 @@ def grab_frames(url, frame_snaps):
     cap = cv2.VideoCapture(video_url)
     print("Caching videos")
     print(video_url)
-    print(video_url)
     while True:
         print(frame_count)
         # Capture frame-by-frame from the video
@@ -90,7 +89,6 @@ def grab_frames(url, frame_snaps):
     # Release the video capture object
     cap.release()
     cv2.destroyAllWindows()
-    print(len(frames))
     return frames
 
 def push_into_file(url, description):
