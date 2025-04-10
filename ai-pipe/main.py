@@ -1,29 +1,11 @@
 # main.py
 # TODO Switch to ffmpeg
-import utils
-import pipe
 from pipe import inference
 from colorama import Fore, Back, Style
 import cv2
 
 path = "descriptions.txt"
 
-def process_frames(frames):
-    output = "() "
-    print("Processing frames...")
-    prompt, model_id = utils.load()
-    lava = pipe.Lava(model_id=model_id, prompt=prompt)
-    lava.load_model()
-
-    img_count = 0
-    
-    for i in frames:
-        img_count += 1
-        output_hold = lava.inference(i)
-        output += output_hold.split("ASSISTANT:")[1].strip()
-        print("F" + str(img_count) + "/" + str(len(frames)))
-
-    return output
 
 def grab_frames(url, frame_snaps):
     video_url = url
