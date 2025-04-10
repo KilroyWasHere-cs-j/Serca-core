@@ -103,6 +103,8 @@ def push_into_file(url, description):
 #  Follow these links at your own risk, no malware just odd ass videos
 def main():
     urls = ["https://a.nwps.fi/1402041709527.webm", "https://a.nwps.fi/15301210957112.webm", "https://a.nwps.fi/C2ElvLB.mp4", "https://a.nwps.fi/ChaseEagleson-Country-Roads.mp4", "https://a.nwps.fi/State-of-Hyphonix.mp4", "https://a.nwps.fi/bg4fi.mp4", "https://a.nwps.fi/low_budget_matrix.mp4", "https://a.nwps.fi/sharishanya.mp4"]
+    print("URLs to target")
+    print(urls)
     for url in urls:
         # Grab frames from the video at url
         frames = grab_frames(url, 15)
