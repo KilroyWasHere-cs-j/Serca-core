@@ -10,7 +10,8 @@ def process_frames(frames):
     output = ""
     print("Processing frame")
     for frame in frames:
-        output += inference(frame)
+        # output += inference(frame)
+        print(type(frame))
 
     return output
 
