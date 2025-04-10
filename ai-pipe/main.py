@@ -73,7 +73,9 @@ def grab_frames(url, frame_snaps):
             break
 
         if frame_count % 15 == 0:
-            frames.append(frame)
+            rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+            pil_image = Image.fromarray(rgb_frame)
+            frames.append(pil_image)
             print("Apended frame")
             # Display the frame with inference result (you can adjust this to show other info)
             # cv2.putText(frame, str(frame_count), (50, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2, cv2.LINE_AA)
