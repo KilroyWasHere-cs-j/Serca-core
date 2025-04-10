@@ -68,8 +68,6 @@ def grab_frames(url, frame_snaps):
     print("Caching videos")
     print(video_url)
     while True:
-        print(frame_count)
-        # Capture frame-by-frame from the video
         ret, frame = cap.read()
         # If a frame is read correctly, ret will be True
         if not ret:
