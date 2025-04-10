@@ -54,7 +54,7 @@ def process_frames(frames):
         )
 
         output = tokenizer.batch_decode(cont, skip_special_tokens=True)
-    spinner.stop()
+    spinner.succeed(text="We processed the fuck outa that!")
     return output
 
 def grab_frames(url, frame_snaps):
