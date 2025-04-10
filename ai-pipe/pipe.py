@@ -26,10 +26,10 @@ conv.append_message(conv.roles[0], question)
 conv.append_message(conv.roles[1], None)
 prompt_question = conv.get_prompt()
 
-def inference():
+def inference(image):
     # load image from url
-    url = "https://github.com/haotian-liu/LLaVA/blob/1a91fc274d7c35a9b50b3cb29c4247ae5837ce39/images/llava_v1_5_radar.jpg?raw=true"
-    image = Image.open(requests.get(url, stream=True).raw)
+    # url = "https://github.com/haotian-liu/LLaVA/blob/1a91fc274d7c35a9b50b3cb29c4247ae5837ce39/images/llava_v1_5_radar.jpg?raw=true"
+    # image = Image.open(requests.get(url, stream=True).raw)
 
     # load image from local environment
     # url = "./local_image.jpg"
