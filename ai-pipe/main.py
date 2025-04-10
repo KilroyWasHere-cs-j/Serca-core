@@ -106,8 +106,6 @@ def main():
     for url in urls:
         # Grab frames from the video at url
         frames = grab_frames(url, 15)
-        print("Total frames")
-        print(len(frames))
         description = process_frames(frames=frames)
         push_into_file(url=url, description=description)
     
