@@ -20,7 +20,7 @@ tokenizer, model, image_processor, max_length = load_pretrained_model(pretrained
 model.eval()
 
 conv_template = "qwen_1_5"
-question = DEFAULT_IMAGE_TOKEN + "\n" + ""
+question = DEFAULT_IMAGE_TOKEN + "\n" + "What's in this image"
 conv = copy.deepcopy(conv_templates[conv_template])
 conv.append_message(conv.roles[0], question)
 conv.append_message(conv.roles[1], None)

@@ -57,9 +57,9 @@ def push_into_file(url, description):
     file1.write(description)
     file1.close()
 
-
+#  Follow these links at your own risk, no malware just odd ass videos
 def main():
-    urls = []
+    urls = ["https://a.nwps.fi/1402041709527.webm", "https://a.nwps.fi/15301210957112.webm"]
     for url in urls:
         # Grab frames from the video at url
         frames = grab_frames(url, 15)
