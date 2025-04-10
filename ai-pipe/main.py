@@ -36,8 +36,9 @@ prompt_question = conv.get_prompt()
 def process_frames(frames):
     output = ""
     spinner.start()
+    print("Processing frames")
+    print("\n")
     for frame in frames:
-        print("Processing frame")
         image_tensor = process_images([frame], image_processor, model.config)
         image_tensor = [_image.to(dtype=torch.float16, device=device) for _image in image_tensor]
 
@@ -80,10 +81,6 @@ def grab_frames(url, frame_snaps):
             rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
             pil_image = Image.fromarray(rgb_frame)
             frames.append(pil_image)
-            # Display the frame with inference result (you can adjust this to show other info)
-            # cv2.putText(frame, str(frame_count), (50, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2, cv2.LINE_AA)
-            # Show the processed frame
-            # cv2.imshow("Video Streaming with Inference", frame)
         frame_count += 1
 
         if cv2.waitKey(1) & 0xFF == ord('q'):
