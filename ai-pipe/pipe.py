@@ -1,48 +1,54 @@
-from transformers import AutoProcessor, AutoModelForVision2Seq
+from llava.model.builder import load_pretrained_model
+from llava.mm_utils import process_images, tokenizer_image_token
+from llava.constants import IMAGE_TOKEN_INDEX, DEFAULT_IMAGE_TOKEN
+from llava.conversation import conv_templates
 from PIL import Image
+import requests
+import copy
 import torch
-from transformers import BitsAndBytesConfig
-from transformers import pipeline
-from colorama import Fore, Back, Style
+import warnings
 
-class Lava:
-    def __init__(self, model_id, prompt):
-        self.model = 0
-        self.model_id = model_id[0]
-        self.prompt = prompt[0]
-        self.processor = 0
-        self.device = 0
-        self.image = 0
+warnings.filterwarnings("ignore")
 
-        print(Fore.BLUE + "------------------------------------------------------")
-        print(Fore.GREEN + "Loading", self.model_id)
-        print(Fore.CYAN + "Prompt is", self.prompt)
-        print(Fore.BLUE + "------------------------------------------------------")
-        print(Fore.WHITE)
+pretrained = "AI-Safeguard/Ivy-VL-llava"
 
-    def load_model(self):
-        self.processor = AutoProcessor.from_pretrained(self.model_id)
-        quantization_config = BitsAndBytesConfig(load_in_4bit=True, bnb_4bit_compute_dtype=torch.float16)
-        self.model = AutoModelForVision2Seq.from_pretrained(self.model_id, quantization_config=quantization_config)
-        self.device = "cuda" if torch.cuda.is_available() else "cpu"
-        self.model.to(self.device)
+model_name = "llava_qwen"
+device = "cuda"
+device_map = "auto"
+tokenizer, model, image_processor, max_length = load_pretrained_model(pretrained, None, model_name, device_map=device_map)  # Add any other thing you want to pass in llava_model_args
 
-    def inference(self, image):
-        self.image = image
-        inputs = self.processor(text=self.prompt, images=self.image, return_tensors="pt").to(self.device) # Move inputs to GPU
-        try:
-            with torch.no_grad():
-                outputs = self.model.generate(**inputs, max_new_tokens=512)
-                return self.processor.decode(outputs[0], skip_special_tokens=True)
-        except ValueError as e:
-            print(Fore.RED + "Forward pass error:", e)
-            print(Fore.WHITE)
-            return e
-        except torch.cuda.OutOfMemoryError as e:
-            print(Fore.RED + "CUDA Out of Memory Error:", e)
-            print(Fore.WHITE)
-            return e
-        except RuntimeError as e:
-            print(Fore.RED + "Runtime Error during generation:", e)
-            print(Fore.WHITE)
-            return e
+model.eval()
+
+conv_template = "qwen_1_5"
+question = DEFAULT_IMAGE_TOKEN + "\n" + ""
+conv = copy.deepcopy(conv_templates[conv_template])
+conv.append_message(conv.roles[0], question)
+conv.append_message(conv.roles[1], None)
+prompt_question = conv.get_prompt()
+
+def inference():
+    # load image from url
+    url = "https://github.com/haotian-liu/LLaVA/blob/1a91fc274d7c35a9b50b3cb29c4247ae5837ce39/images/llava_v1_5_radar.jpg?raw=true"
+    image = Image.open(requests.get(url, stream=True).raw)
+
+    # load image from local environment
+    # url = "./local_image.jpg"
+    # image = Image.open(url)
+
+    image_tensor = process_images([image], image_processor, model.config)
+    image_tensor = [_image.to(dtype=torch.float16, device=device) for _image in image_tensor]
+
+    input_ids = tokenizer_image_token(prompt_question, tokenizer, IMAGE_TOKEN_INDEX, return_tensors="pt").unsqueeze(0).to(device)
+    image_sizes = [image.size]
+
+    cont = model.generate(
+        input_ids,
+        images=image_tensor,
+        image_sizes=image_sizes,
+        do_sample=False,
+        temperature=0,
+        max_new_tokens=4096,
+    )
+
+    text_outputs = tokenizer.batch_decode(cont, skip_special_tokens=True)
+    return text_outputs

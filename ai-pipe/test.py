@@ -30,8 +30,8 @@ image = Image.open(requests.get(url, stream=True).raw)
 image_tensor = process_images([image], image_processor, model.config)
 image_tensor = [_image.to(dtype=torch.float16, device=device) for _image in image_tensor]
 
-conv_template = "qwen_1_5"  # Make sure you use correct chat template for different models
-question = DEFAULT_IMAGE_TOKEN + "\nWhat is shown in this image?"
+conv_template = "qwen_1_5"
+question = DEFAULT_IMAGE_TOKEN + "\n" + ""
 conv = copy.deepcopy(conv_templates[conv_template])
 conv.append_message(conv.roles[0], question)
 conv.append_message(conv.roles[1], None)
@@ -52,3 +52,9 @@ cont = model.generate(
 text_outputs = tokenizer.batch_decode(cont, skip_special_tokens=True)
 
 print(text_outputs)
+
+def inference():
+    print("")
+
+def load():
+    print("")
