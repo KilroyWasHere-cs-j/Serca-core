@@ -8,6 +8,7 @@ path = "descriptions.txt"
 
 def process_frames(frames):
     outout = ""
+    print("Processing frame")
     for frame in frames:
         output += inference(frame)
 
@@ -63,6 +64,7 @@ def main():
     for url in urls:
         # Grab frames from the video at url
         frames = grab_frames(url, 15)
+        print(len(frames))
         description = process_frames(frames=frames)
         push_into_file(url=url, description=description)
     
