@@ -1,96 +1,113 @@
-from transformers import BitsAndBytesConfig, LlavaNextVideoForConditionalGeneration, LlavaNextVideoProcessor
+# main.py
+# TODO Switch to ffmpeg
+from colorama import Fore, Back, Style
+import cv2
+from llava.model.builder import load_pretrained_model
+from llava.mm_utils import process_images, tokenizer_image_token
+from llava.constants import IMAGE_TOKEN_INDEX, DEFAULT_IMAGE_TOKEN
+from llava.conversation import conv_templates
+from PIL import Image
+import copy
 import torch
+import warnings
+from halo import Halo
 
-quantization_config = BitsAndBytesConfig(
-    load_in_4bit=True,
-    bnb_4bit_compute_dtype=torch.float16
-)
+path = "descriptions.txt"
+spinner = Halo(text='Processing frames', spinner='dots')
 
-processor = LlavaNextVideoProcessor.from_pretrained("llava-hf/LLaVA-NeXT-Video-7B-hf")
-model = LlavaNextVideoForConditionalGeneration.from_pretrained(
-    "llava-hf/LLaVA-NeXT-Video-7B-hf",
-    quantization_config=quantization_config,
-    device_map='auto'
-)
+warnings.filterwarnings("ignore")
 
-import av
-import numpy as np
+pretrained = "AI-Safeguard/Ivy-VL-llava"
 
-def read_video_pyav(container, indices):
-    '''
-    Decode the video with PyAV decoder.
+model_name = "llava_qwen"
+device = "cuda"
+device_map = "auto"
+tokenizer, model, image_processor, max_length = load_pretrained_model(pretrained, None, model_name, device_map=device_map)  # Add any other thing you want to pass in llava_model_args
 
-    Args:
-        container (av.container.input.InputContainer): PyAV container.
-        indices (List[int]): List of frame indices to decode.
+model.eval()
 
-    Returns:
-        np.ndarray: np array of decoded frames of shape (num_frames, height, width, 3).
-    '''
+conv_template = "qwen_1_5"
+question = DEFAULT_IMAGE_TOKEN + "\n" + "What's in this image"
+conv = copy.deepcopy(conv_templates[conv_template])
+conv.append_message(conv.roles[0], question)
+conv.append_message(conv.roles[1], None)
+prompt_question = conv.get_prompt()
+
+def process_frames(frames):
+    output = ""
+    spinner.start()
+    print("Processing frames")
+    print("\n")
+    for frame in frames:
+        image_tensor = process_images([frame], image_processor, model.config)
+        image_tensor = [_image.to(dtype=torch.float16, device=device) for _image in image_tensor]
+
+        input_ids = tokenizer_image_token(prompt_question, tokenizer, IMAGE_TOKEN_INDEX, return_tensors="pt").unsqueeze(0).to(device)
+        image_sizes = [frame.size]
+
+        cont = model.generate(
+            input_ids,
+            images=image_tensor,
+            image_sizes=image_sizes,
+            do_sample=False,
+            temperature=0,
+            max_new_tokens=4096,
+        )
+
+        output = tokenizer.batch_decode(cont, skip_special_tokens=True)
+    spinner.succeed(text="We processed the fuck outa that!")
+    return output
+
+def grab_frames(url, frame_snaps):
+    video_url = url
+    frame_inc = frame_snaps
+    frame_count = 0
     frames = []
-    container.seek(0)
-    start_index = indices[0]
-    end_index = indices[-1]
-    for i, frame in enumerate(container.decode(video=0)):
-        if i > end_index:
+    # Initialize video stream
+    cap = cv2.VideoCapture(video_url)
+    print("Caching videos")
+    print(video_url)
+    while True:
+        ret, frame = cap.read()
+        # If a frame is read correctly, ret will be True
+        if not ret:
+            print("Failed to grab frame")
             break
-        if i >= start_index and i in indices:
-            frames.append(frame)
-    return np.stack([x.to_ndarray(format="rgb24") for x in frames])
 
-from huggingface_hub import hf_hub_download
+        if frame_count % 15 == 0:
+            rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+            pil_image = Image.fromarray(rgb_frame)
+            frames.append(pil_image)
+        frame_count += 1
 
-# Download video from the hub
-video_path_1 = hf_hub_download(repo_id="raushan-testing-hf/videos-test", filename="sample_demo_1.mp4", repo_type="dataset")
-video_path_2 = hf_hub_download(repo_id="raushan-testing-hf/videos-test", filename="karate.mp4", repo_type="dataset")
+        if cv2.waitKey(1) & 0xFF == ord('q'):
+            break
 
-print("Downloaded videos")
-container = av.open(video_path_1)
+    print("All cached")
+    # Release the video capture object
+    cap.release()
+    cv2.destroyAllWindows()
+    return frames
 
-# sample uniformly 8 frames from the video (we can sample more for longer videos)
-total_frames = container.streams.video[0].frames
-indices = np.arange(0, total_frames, total_frames / 8).astype(int)
-clip_baby = read_video_pyav(container, indices)
+def push_into_file(url, description):
+    file1 = open(path, "a")
+    file1.write("\n")
+    file1.write("--")
+    file1.write(url)
+    file1.write("\n")
+    file1.write(str(description))
+    file1.close()
 
-
-container = av.open(video_path_2)
-
-# sample uniformly 8 frames from the video (we can sample more for longer videos)
-total_frames = container.streams.video[0].frames
-indices = np.arange(0, total_frames, total_frames / 8).astype(int)
-clip_karate = read_video_pyav(container, indices)
-print("Did all the video crap")
-
-# Each "content" is a list of dicts and you can add image/video/text modalities
-conversation = [
-  {
-          "role": "user",
-          "content": [
-              {"type": "text", "text": "What do you see in this video?"},
-              {"type": "video"},
-              ],
-      },
-      {
-          "role": "assistant",
-          "content": [
-              {"type": "text", "text": "I see a baby reading a book."},
-              ],
-      },
-      {
-          "role": "user",
-          "content": [
-              {"type": "text", "text": "Why is it funny?"},
-              ],
-      },
-]
-
-prompt = processor.apply_chat_template(conversation, add_generation_prompt=True)
-
-inputs = processor([prompt], videos=[clip_baby], padding=True, return_tensors="pt").to(model.device)
-
-generate_kwargs = {"max_new_tokens": 100, "do_sample": True, "top_p": 0.9}
-
-output = model.generate(**inputs, **generate_kwargs)
-generated_text = processor.batch_decode(output, skip_special_tokens=True)
-
-print(generated_text)
+#  Follow these links at your own risk, no malware just odd ass videos
+def main():
+    urls = ["https://a.nwps.fi/1402041709527.webm", "https://a.nwps.fi/15301210957112.webm", "https://a.nwps.fi/C2ElvLB.mp4", "https://a.nwps.fi/ChaseEagleson-Country-Roads.mp4", "https://a.nwps.fi/State-of-Hyphonix.mp4", "https://a.nwps.fi/bg4fi.mp4", "https://a.nwps.fi/low_budget_matrix.mp4", "https://a.nwps.fi/sharishanya.mp4"]
+    print("URLs to target")
+    print(urls)
+    for url in urls:
+        # Grab frames from the video at url
+        frames = grab_frames(url, 15)
+        description = process_frames(frames=frames)
+        push_into_file(url=url, description=description)
+    
+if __name__ == "__main__":
+    main()
