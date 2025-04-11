@@ -17,6 +17,7 @@ spinner = Halo(text='Processing frames', spinner='dots')
 
 warnings.filterwarnings("ignore")
 
+# Light weight model
 pretrained = "AI-Safeguard/Ivy-VL-llava"
 
 model_name = "llava_qwen"
