@@ -53,7 +53,7 @@ videos
 # <PIL.Image.Image image mode=RGB size=1920x1080>,
 # <PIL.Image.Image image mode=RGB size=1920x1080>, ...]
 
-user_prompt = "Are these two cats in these two videos doing the same thing?"
+user_prompt = "What is going one in this video?"
 toks = "<image>" * 12
 prompt = "<|im_start|>user"+ toks + f"\n{user_prompt}<|im_end|><|im_start|>assistant"
 inputs = processor(text=prompt, images=videos, return_tensors="pt").to(model.device, model.dtype)
