@@ -1,60 +1,65 @@
-from llava.model.builder import load_pretrained_model
-from llava.mm_utils import process_images, tokenizer_image_token
-from llava.constants import IMAGE_TOKEN_INDEX, DEFAULT_IMAGE_TOKEN
-from llava.conversation import conv_templates
-from PIL import Image
-import requests
-import copy
+from transformers import LlavaProcessor, LlavaForConditionalGeneration
 import torch
-import warnings
+model_id = "llava-hf/llava-interleave-qwen-0.5b-hf"
 
-warnings.filterwarnings("ignore")
+processor = LlavaProcessor.from_pretrained(model_id)
 
-pretrained = "AI-Safeguard/Ivy-VL-llava"
+model = LlavaForConditionalGeneration.from_pretrained(model_id, torch_dtype=torch.float16)
+model.to("cuda") # can also be xpu, mps, npu etc. depending on your hardware accelerator
 
-model_name = "llava_qwen"
-device = "cuda"
-device_map = "auto"
-tokenizer, model, image_processor, max_length = load_pretrained_model(pretrained, None, model_name, device_map=device_map)  # Add any other thing you want to pass in llava_model_args
+import uuid
+import requests
+import cv2
+from PIL import Image
 
-model.eval()
+def replace_video_with_images(text, frames):
+  return text.replace("<video>", "<image>" * frames)
 
-# load image from url
-url = "https://github.com/haotian-liu/LLaVA/blob/1a91fc274d7c35a9b50b3cb29c4247ae5837ce39/images/llava_v1_5_radar.jpg?raw=true"
-image = Image.open(requests.get(url, stream=True).raw)
+def sample_frames(url, num_frames):
 
-# load image from local environment
-# url = "./local_image.jpg"
-# image = Image.open(url)
+    response = requests.get(url)
+    path_id = str(uuid.uuid4())
 
-image_tensor = process_images([image], image_processor, model.config)
-image_tensor = [_image.to(dtype=torch.float16, device=device) for _image in image_tensor]
+    path = f"./{path_id}.mp4" 
 
-conv_template = "qwen_1_5"
-question = DEFAULT_IMAGE_TOKEN + "\n" + ""
-conv = copy.deepcopy(conv_templates[conv_template])
-conv.append_message(conv.roles[0], question)
-conv.append_message(conv.roles[1], None)
-prompt_question = conv.get_prompt()
+    with open(path, "wb") as f:
+      f.write(response.content)
 
-input_ids = tokenizer_image_token(prompt_question, tokenizer, IMAGE_TOKEN_INDEX, return_tensors="pt").unsqueeze(0).to(device)
-image_sizes = [image.size]
+    video = cv2.VideoCapture(path)
+    total_frames = int(video.get(cv2.CAP_PROP_FRAME_COUNT))
+    interval = total_frames // num_frames
+    frames = []
+    for i in range(total_frames):
+        ret, frame = video.read()
+        pil_img = Image.fromarray(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
+        if not ret:
+            continue
+        if i % interval == 0:
+            frames.append(pil_img)
+    video.release()
+    return frames[:num_frames]
 
-cont = model.generate(
-    input_ids,
-    images=image_tensor,
-    image_sizes=image_sizes,
-    do_sample=False,
-    temperature=0,
-    max_new_tokens=4096,
-)
+video_1 = "https://huggingface.co/spaces/merve/llava-interleave/resolve/main/cats_1.mp4"
+video_2 = "https://huggingface.co/spaces/merve/llava-interleave/resolve/main/cats_2.mp4"
 
-text_outputs = tokenizer.batch_decode(cont, skip_special_tokens=True)
+video_1 = sample_frames(video_1, 6)
+video_2 = sample_frames(video_2, 6)
 
-print(text_outputs)
+videos = video_1 + video_2
 
-def inference():
-    print("")
+videos
 
-def load():
-    print("")
+# [<PIL.Image.Image image mode=RGB size=1920x1080>,
+# <PIL.Image.Image image mode=RGB size=1920x1080>,
+# <PIL.Image.Image image mode=RGB size=1920x1080>, ...]
+
+user_prompt = "Are these two cats in these two videos doing the same thing?"
+toks = "<image>" * 12
+prompt = "<|im_start|>user"+ toks + f"\n{user_prompt}<|im_end|><|im_start|>assistant"
+inputs = processor(text=prompt, images=videos, return_tensors="pt").to(model.device, model.dtype)
+
+output = model.generate(**inputs, max_new_tokens=100, do_sample=False)
+print(processor.decode(output[0][2:], skip_special_tokens=True)[len(user_prompt)+10:])
+
+# The first cat is shown in a relaxed state, with its eyes closed and a content expression, while the second cat is shown in a more active state, with its mouth open wide, possibly in a yawn or a vocalization.
+
