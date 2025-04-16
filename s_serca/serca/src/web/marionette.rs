@@ -5,6 +5,8 @@ use fantoccini::{Client, Locator};
 use std::sync::Arc;
 use tokio::sync::Mutex;
 
+
+#[derive(Debug)]
 pub struct PageData {
     pub meta_data: String,
     pub urls: Vec<String>,
@@ -54,7 +56,6 @@ impl Marionette {
         //tokio::time::sleep(std::time::Duration::from_secs(3)).await;
         println!("SUCCESS");
 
-
         match client.source().await {
         Ok(page_html) => {
             let document = Html::parse_document(&page_html);
@@ -62,8 +63,7 @@ impl Marionette {
             // Select images
             let img_selector = Selector::parse("img").unwrap();
             for img in document.select(&img_selector) {
-                if let Some(src) = img.value().attr("src") {
-                        println!("Found new media {:?}", src.to_string());
+                if let Some(src) = img.value().attr("src") { 
                         page_data.media.push(src.to_string());
                 }
             }
@@ -72,8 +72,7 @@ impl Marionette {
             let link_selector = Selector::parse("a").unwrap();
             for link in document.select(&link_selector) {
                 if let Some(href) = link.value().attr("href") {
-                        println!("Found new url {:?}", href.to_string());
-                        page_data.urls.push(href.to_string());
+                        page_data.urls.push(format!("{}/{}", self.url, href.to_string()));
                 }
             }
         }

@@ -6,6 +6,7 @@ use std::fs::File;
 use std::io::prelude::*;
 use anyhow::Result;
 use std::process::Command;
+use std::fs;
 
 fn create_file(path: &str) -> Result<()> {
     let mut file = File::create(path)?;
@@ -15,6 +16,9 @@ fn create_file(path: &str) -> Result<()> {
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    fs::remove_file("spent_urls.txt").unwrap_or_else(|why| {
+        println!("! {:?}", why.kind());
+    });
     println!("Launching Puppeteer");
 
     let puppeteer = Puppeteer::new();
