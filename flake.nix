@@ -16,6 +16,7 @@
           cargo
           pkg-config
           openssl
+          heaptrack
         ];
 
         shellHook = ''
