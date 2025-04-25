@@ -23,7 +23,7 @@ impl Marionette {
     pub fn new() -> Self {
         Self {
             id: 0,
-            url: "https://example.com/".to_string(), 
+            url: "https://example.com".to_string(), 
             depth: 0,
         }
     }
@@ -64,7 +64,7 @@ impl Marionette {
             let img_selector = Selector::parse("img").unwrap();
             for img in document.select(&img_selector) {
                 if let Some(src) = img.value().attr("src") { 
-                        page_data.media.push(src.to_string());
+                        page_data.urls.push(format!("{}{}", self.url, src))
                 }
             }
 
@@ -72,9 +72,24 @@ impl Marionette {
             let link_selector = Selector::parse("a").unwrap();
             for link in document.select(&link_selector) {
                 if let Some(href) = link.value().attr("href") {
-                        page_data.urls.push(format!("{}/{}", self.url, href.to_string()));
+                        page_data.urls.push(format!("{}{}", self.url, href.to_string()));
                 }
             }
+
+            // Selector for source tags
+            let source_selector = Selector::parse("source").unwrap();
+            for img in document.select(&img_selector) {
+                if let Some(src) = img.value().attr("src") {
+                    page_data.urls.push(format!("{}{}", self.url, src));
+                }
+            }
+
+            for source in document.select(&source_selector) {
+                if let Some(src) = source.value().attr("src") {
+                   page_data.urls.push(format!("{}{}", self.url, src));
+            }   
+        }
+
         }
         Err(e) => eprintln!("Failed to get page source: {}", e),
     }
