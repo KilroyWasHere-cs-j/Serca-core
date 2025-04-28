@@ -21,6 +21,7 @@ pub struct Puppeteer {
     c_total: i64,
     marionettes: Vec<Marionette>,
     cached_urls: Arc<Mutex<HashSet<String>>>,
+    black_list: Arc<Mutex<Vec<String>>>,
 }
 
 impl Puppeteer {
@@ -40,6 +41,7 @@ impl Puppeteer {
             c_total: 0,
             marionettes: Vec::new(),
             cached_urls: Arc::new(Mutex::new(HashSet::new())),
+            black_list: Arc::new(Mutex::new(Vec::new())),
         }
     }
 
@@ -67,6 +69,23 @@ impl Puppeteer {
         }
     }
 
+    pub async fn load_blacklist(mut self) -> Result<()> {
+        let mut file = File::open("foo.txt")?;
+        let mut list = String::new();
+        file.read_to_string(&mut list);
+        let parts = list.split(" ");
+
+        for part in parts {
+            self.black_list.lock().await.push(part.to_string());
+        }
+        Ok(())
+    }
+
+    pub async fn check_blacklist(mut self, url: String) -> Result<bool> {
+        let is_blacklisted = self.black_list.lock().await.iter().any(|blacklisted_url| blacklisted_url == &url);
+        return Ok(is_blacklisted)
+    }
+
     pub async fn control(mut self) {
 
         loop {
@@ -89,6 +108,7 @@ impl Puppeteer {
 
         let url_db_clone = self.url_db.clone();
         for (i, url) in url_db_clone.into_iter().enumerate() {
+            pop_first(&url);
             let client = Arc::clone(&self.client); // move this inside the loop
             let id = self.c_total + i as i64; // or however you're assigning unique IDs
 
@@ -96,6 +116,7 @@ impl Puppeteer {
             println!("New Marionette spawned. Count is now {}", id);
 
             let handle = tokio::spawn(async move {
+                println!("Made Marionette {}", url);
                 let mut marionette = Marionette::new()
                     .url(url)
                     .id(id);
@@ -159,4 +180,15 @@ fn flush_to_file(page_data: PageData) -> Result<()> {
     }
     
     Ok(())
+}
+
+fn pop_first(s: &str) {
+    let mut chars = s.chars();
+
+    if chars.next() == Some('/') {
+        println!("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
+    }
+    else {
+        println!("hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh");
+    }
 }
