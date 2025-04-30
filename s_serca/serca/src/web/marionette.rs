@@ -23,7 +23,7 @@ impl Marionette {
     pub fn new() -> Self {
         Self {
             id: 0,
-            url: "https://example.com/".to_string(), 
+            url: "https://example.com".to_string(), 
             depth: 0,
         }
     }
@@ -41,20 +41,21 @@ impl Marionette {
     pub async fn walk(&mut self, client: Arc<Mutex<Client>>) -> Result<PageData> {
         let client = client.lock().await;
 
-        println!("{} : {}", &self.id, &self.url);
+        //println!("{} : {}", &self.id, &self.url);
 
         let mut page_data = PageData {
             meta_data: "NULL".to_string(),
             urls: Vec::new(),
             media: Vec::new(),
         };
+
         if let Err(e) = client.goto(&self.url).await {
             eprintln!("Marionette can't get to url {}", e);
             return Ok(page_data);
         }
 
         //tokio::time::sleep(std::time::Duration::from_secs(3)).await;
-        println!("SUCCESS");
+        //println!("SUCCESS");
 
         match client.source().await {
         Ok(page_html) => {
@@ -63,8 +64,9 @@ impl Marionette {
             // Select images
             let img_selector = Selector::parse("img").unwrap();
             for img in document.select(&img_selector) {
-                if let Some(src) = img.value().attr("src") { 
-                        page_data.media.push(src.to_string());
+                if let Some(src) = img.value().attr("src") {
+                        Self::pop_first(src);
+                        page_data.urls.push(format!("{}{}", self.url, src))
                 }
             }
 
@@ -72,14 +74,41 @@ impl Marionette {
             let link_selector = Selector::parse("a").unwrap();
             for link in document.select(&link_selector) {
                 if let Some(href) = link.value().attr("href") {
-                        page_data.urls.push(format!("{}/{}", self.url, href.to_string()));
+                        //println!("HREF: {}", href.to_string());
+                        page_data.urls.push(format!("{}{}", self.url, href.to_string()));
                 }
             }
+
+            // Selector for source tags
+            let source_selector = Selector::parse("source").unwrap();
+            for img in document.select(&img_selector) {
+                if let Some(src) = img.value().attr("src") {
+                        //println!("SRC: {}", src);
+                        page_data.urls.push(format!("{}{}", self.url, src));
+                }
+            }
+
+            for source in document.select(&source_selector) {
+                if let Some(src) = source.value().attr("src") {
+                   page_data.urls.push(format!("{}{}", self.url, src));
+            }   
+        }
+
         }
         Err(e) => eprintln!("Failed to get page source: {}", e),
     }
         Ok(page_data)
     }
-}
 
+    fn pop_first(s: &str) {
+        let mut chars = s.chars();
+
+        if chars.next() == Some('/') {
+            println!("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA {:?}", chars);
+        }
+        else {
+            //println!("hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh {:?}", chars);
+        }
+    }
+}
 
