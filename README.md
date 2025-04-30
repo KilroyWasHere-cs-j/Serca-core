@@ -28,9 +28,7 @@ Our goal with Serca-core is to build a robust and accessible open-source base fo
 Follow these steps to get Serca-core running in your local environment:
 
 ## Donations
-We plan to host and run this as a service. That is not cheap at all between the web serivces and GPU hosting for training and inferencing the AI models. We are asking for donations no matter how big or small. We will be looking for sponcers and funding, but if your able please concider donating. - Kilroy
-bc1qtk5ffv36hlguj9q2h6687reuaqmyqtfzv8utwv - BTC
-0x4454540DFbBBE0BED02c1C736D9F269eE65A478e - ETH
+This is expensive to run. I am currently looking into funding. I will update as soon as I have something, or as soon as I remember to update this. If you want to donate to server fees and stuff let me know. gmtower1@proton.me
 
 **Donations Note**
 I am in the process of creating a LLC to support this project. At that point I will switch all funding sources to there, for now it's a case of "Trust Me Bro". I will update this when that is correctly working.
