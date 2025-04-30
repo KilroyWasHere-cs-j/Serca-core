@@ -30,9 +30,6 @@ Follow these steps to get Serca-core running in your local environment:
 ## Donations
 This is expensive to run. I am currently looking into funding. I will update as soon as I have something, or as soon as I remember to update this. If you want to donate to server fees and stuff let me know. gmtower1@proton.me
 
-**Donations Note**
-I am in the process of creating a LLC to support this project. At that point I will switch all funding sources to there, for now it's a case of "Trust Me Bro". I will update this when that is correctly working.
-
 ### Matrix
 Link to the Matrix room is here.
 [Matrix](https://matrix.to/#/#serca_browser:matrix.org)
