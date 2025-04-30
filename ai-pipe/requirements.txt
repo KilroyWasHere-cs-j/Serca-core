@@ -1,7 +1,0 @@
-torch
-torchvision
-transformers
-pillow
-sentencepiece
-accelerate
-bitsandbytes
