@@ -13,9 +13,10 @@ use std::fs::OpenOptions;
 use std::io::Write;
 use std::process::Command;
 use sysinfo::{ Process, System, Signal };
+//use std::collections::HashSet;
 
 pub struct Puppeteer {
-    client: Arc<Mutex<Client>>,
+    //client: Arc<Mutex<Client>>,
     url_db: Vec<String>,
     max: i64,
     c_total: i64,
@@ -34,7 +35,7 @@ impl Puppeteer {
         println!("Got urls");
 
         Puppeteer {
-            client: Arc::new(Mutex::new(Client::new("http://localhost:4444").await.expect("10 bucks says geckodriver isn't running and/or isn't installed"))),
+            //client: Arc::new(Mutex::new(Client::new("http://localhost:4444").await.expect("10 bucks says geckodriver isn't running and/or isn't installed"))),
             url_db: lines,
             max: 5,
             c_total: 0,
@@ -46,25 +47,6 @@ impl Puppeteer {
     pub fn url_db(mut self, url_db: Vec<String>) -> Self{
         self.url_db = url_db;
         self
-    }
-
-    fn start_geco() {
-        let mut sys = System::new_all();
-        sys.refresh_all();
-
-        for (pid, process) in sys.processes() {
-            if process.name() == "geckodriver" {
-                println!("Found Geckodriver");
-                if process.kill_with(Signal::Kill).is_none() {
-                    println!("This signal isn't supported on this platform");
-                } else {
-                    println!("Restarting Geckodriver");
-                    let output = Command::new("geckodriver")
-                        .output()
-                        .expect("Failed to run start geckodriver command");
-                }
-            }
-        }
     }
 
     pub async fn control(mut self) {
@@ -87,34 +69,48 @@ impl Puppeteer {
         self.c_total += 1;
         let id = self.c_total;
 
-        let url_db_clone = self.url_db.clone();
+        //println!("URL db len: {}", self.c_total);
+        let mut url_db_clone = self.url_db.clone();
         for (i, url) in url_db_clone.into_iter().enumerate() {
-            let client = Arc::clone(&self.client); // move this inside the loop
-            let id = self.c_total + i as i64; // or however you're assigning unique IDs
-
+            //let client = Arc::clone(&self.client); // move this inside the loop
+            self.c_total + i as i64;
+            let id = self.c_total;
+            //url_db_clone.pop();
             log_spent_url(&url);
-            println!("New Marionette spawned. Count is now {}", id);
-
+            //println!("New Marionette spawned. Count is now {}", id);
+            //println!("{}", url);
             let handle = tokio::spawn(async move {
                 let mut marionette = Marionette::new()
                     .url(url)
                     .id(id);
 
-                let data = marionette.walk(client).await
-                    .expect("Welp that page isn't accessible");
+                //let data = marionette.walk().await
+                    //.expect("Welp that page isn't accessible");
 
-            data.urls
+                match marionette.walk().await {
+                    Some(data) => return data.urls,
+                    None => Vec::new()
+                }
             });
             marionettes.push(handle);
         }
         println!("Marionettes spawned");
-
-        println!("Waiting waiting Marionettes return");
-        for marionette in marionettes { 
+        self.url_db.clear();
+        println!("Waiting waiting Marionettes return {}", self.c_total);
+        for marionette in marionettes {
+            self.c_total - 1;
             let data = marionette.await.expect("Marionette failed to close up properly"); 
             let mut new_urls = Vec::new();
-            for url in data {
-                new_urls.push(url);
+            if data.len() != 0 {
+                for url in data {
+                    new_urls.push(url);
+                }
+            }
+            else {
+                //println!("Nothing can be found");
+            }
+            if self.c_total == 0 {
+                break;
             }
             self.url_db.extend(new_urls);
         }
@@ -123,7 +119,7 @@ impl Puppeteer {
 }
 
 fn log_spent_url(url: &str) -> Result<()> {
-    println!("Logging url");
+    //println!("Logging url {}", url);
     let mut file = OpenOptions::new()
         .create(true)
         .append(true)
