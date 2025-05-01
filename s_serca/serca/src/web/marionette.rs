@@ -7,6 +7,7 @@ use tokio::sync::Mutex;
 
 #[derive(Debug)]
 pub struct PageData {
+    pub spawn_url: String,
     pub meta_data: String,
     pub urls: Vec<String>,
     pub media: Vec<String>,
@@ -37,28 +38,24 @@ impl Marionette {
         self
     }
 
-    pub async fn walk(&mut self) -> Option<PageData> {
+    pub async fn walk(&mut self) -> Result<PageData> {
         //let client = client.lock().await;
 
         //println!("{} : {}", &self.id, &self.url);
 
-        if self.url.contains(".mp4") || self.url.contains(".mp3") || self.url.contains(".jpg") || self.url.contains(".png") {
-            return None;
-        }
         let mut page_data = PageData {
+            spawn_url: self.url.clone(),
             meta_data: "NULL".to_string(),
             urls: Vec::new(),
             media: Vec::new(),
         };
 
         let html = reqwest::get(&self.url)
-            .await.unwrap()
+            .await?
             .text()
-            .await.unwrap();
+            .await?; 
 
-        //let fragment = Html::parse_fragment(&body);
-
-        let document = Html::parse_document(&html);
+        let document = Html::parse_document(&html);        
 
         let link_selector = Selector::parse("a").unwrap();
         for element in document.select(&link_selector) {
@@ -71,10 +68,10 @@ impl Marionette {
         let img_selector = Selector::parse("img").unwrap();
         for element in document.select(&img_selector) {
             if let Some(src) = element.value().attr("src") {
-                //println!("Image: {}", src);
+                page_data.urls.push(format!("{}/{}", self.url, src.replace("/", "")));
             }
         }
-        Some(page_data)
+        Ok(page_data)
     }
 }
 
