@@ -5,7 +5,7 @@
 
 Serca-core is the foundational, open-source component of Serca, an AI-powered media search engine. This repository houses the core logic and infrastructure that enable the indexing and searching of various media types.
 
-**Important Note:** This repository contains the essential building blocks of Serca. Advanced features, proprietary algorithms, and sensitive configurations maybe omitted to a paid tier
+**Important Note:** This project aims to maintain the core as completely open source.
 
 ## What is Serca-core?
 
