@@ -1,32 +1,11 @@
-//! My Awesome Library
-//!
-//! This library provides core functionality for XYZ.
+// lib.rs for the `serca` library
 
-// Make modules public if needed
+/// The `serca` crate is a placeholder for awesome functionality.
+/// Replace this with your actual crate-level documentation.
 pub mod web;
 
-///// Adds two numbers together.
-//pub fn add(a: i32, b: i32) -> i32 {
-//    a + b
-//}
-//
-///// Subtracts the second number from the first.
-//pub fn subtract(a: i32, b: i32) -> i32 {
-//    a - b
-//}
-//
-//#[cfg(test)]
-//mod tests {
-//    use super::*;
-//
-//    #[test]
-//    fn test_add() {
-//        assert_eq!(add(2, 3), 5);
-//    }
-//
-//    #[test]
-//    fn test_subtract() {
-//        assert_eq!(subtract(5, 3), 2);
-//    }
-//}
+/// A simple greeting function for testing.
+pub fn hello() -> &'static str {
+    "Hello from serca!"
+}
 

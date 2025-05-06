@@ -23,7 +23,7 @@ impl Marionette {
     pub fn new() -> Self {
         Self {
             id: 0,
-            url: "https://example.com/".to_string(), 
+            url: "https://example.com".to_string(), 
             depth: 0,
         }
     }
@@ -49,7 +49,7 @@ impl Marionette {
             urls: Vec::new(),
             media: Vec::new(),
         };
-
+      
         let html = reqwest::get(&self.url)
             .await?
             .text()
@@ -63,16 +63,26 @@ impl Marionette {
                 page_data.urls.push(format!("{}/{}", self.url, href.replace("/", "")));
             }
         }
-
+      
         // Extract <img src="...">
         let img_selector = Selector::parse("img").unwrap();
         for element in document.select(&img_selector) {
             if let Some(src) = element.value().attr("src") {
                 page_data.urls.push(format!("{}/{}", self.url, src.replace("/", "")));
-            }
+            }   
         }
         Ok(page_data)
     }
-}
 
+    fn pop_first(s: &str) {
+        let mut chars = s.chars();
+
+        if chars.next() == Some('/') {
+            println!("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA {:?}", chars);
+        }
+        else {
+            //println!("hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh {:?}", chars);
+        }
+    }
+}
 

@@ -23,6 +23,7 @@ pub struct Puppeteer {
     c_total: i64,
     marionettes: Vec<Marionette>,
     cached_urls: Arc<Mutex<HashSet<String>>>,
+    black_list: Arc<Mutex<Vec<String>>>,
 }
 
 impl Puppeteer {
@@ -42,6 +43,7 @@ impl Puppeteer {
             c_total: 0,
             marionettes: Vec::new(),
             cached_urls: Arc::new(Mutex::new(HashSet::new())),
+            black_list: Arc::new(Mutex::new(Vec::new())),
         }
     }
 
@@ -49,9 +51,8 @@ impl Puppeteer {
         self.url_db = url_db;
         self
     }
-
+  
     pub async fn control(mut self) -> Result<()>{
-
         loop {
             {
                 self.url_db = self.run_batch().await?;
@@ -207,4 +208,15 @@ fn flush_to_file(page_data: PageData) -> Result<()> {
     }
     
     Ok(())
+}
+
+fn pop_first(s: &str) {
+    let mut chars = s.chars();
+
+    if chars.next() == Some('/') {
+        println!("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
+    }
+    else {
+        println!("hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh");
+    }
 }
