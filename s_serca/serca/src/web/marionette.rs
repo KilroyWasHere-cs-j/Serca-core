@@ -1,13 +1,13 @@
 use anyhow::Result;
 use scraper::Html;
 use scraper::Selector;
-use fantoccini::{Client, Locator};
+use fantoccini::{ Client, Locator };
 use std::sync::Arc;
 use tokio::sync::Mutex;
 
-
 #[derive(Debug)]
 pub struct PageData {
+    pub spawn_url: String,
     pub meta_data: String,
     pub urls: Vec<String>,
     pub media: Vec<String>,
@@ -38,65 +38,39 @@ impl Marionette {
         self
     }
 
-    pub async fn walk(&mut self, client: Arc<Mutex<Client>>) -> Result<PageData> {
-        let client = client.lock().await;
+    pub async fn walk(&mut self) -> Result<PageData> {
+        //let client = client.lock().await;
 
         //println!("{} : {}", &self.id, &self.url);
 
         let mut page_data = PageData {
+            spawn_url: self.url.clone(),
             meta_data: "NULL".to_string(),
             urls: Vec::new(),
             media: Vec::new(),
         };
+      
+        let html = reqwest::get(&self.url)
+            .await?
+            .text()
+            .await?; 
 
-        if let Err(e) = client.goto(&self.url).await {
-            eprintln!("Marionette can't get to url {}", e);
-            return Ok(page_data);
+        let document = Html::parse_document(&html);        
+
+        let link_selector = Selector::parse("a").unwrap();
+        for element in document.select(&link_selector) {
+            if let Some(href) = element.value().attr("href") { 
+                page_data.urls.push(format!("{}/{}", self.url, href.replace("/", "")));
+            }
         }
-
-        //tokio::time::sleep(std::time::Duration::from_secs(3)).await;
-        //println!("SUCCESS");
-
-        match client.source().await {
-        Ok(page_html) => {
-            let document = Html::parse_document(&page_html);
-
-            // Select images
-            let img_selector = Selector::parse("img").unwrap();
-            for img in document.select(&img_selector) {
-                if let Some(src) = img.value().attr("src") {
-                        Self::pop_first(src);
-                        page_data.urls.push(format!("{}{}", self.url, src))
-                }
-            }
-
-            // Select links (page URLs)
-            let link_selector = Selector::parse("a").unwrap();
-            for link in document.select(&link_selector) {
-                if let Some(href) = link.value().attr("href") {
-                        //println!("HREF: {}", href.to_string());
-                        page_data.urls.push(format!("{}{}", self.url, href.to_string()));
-                }
-            }
-
-            // Selector for source tags
-            let source_selector = Selector::parse("source").unwrap();
-            for img in document.select(&img_selector) {
-                if let Some(src) = img.value().attr("src") {
-                        //println!("SRC: {}", src);
-                        page_data.urls.push(format!("{}{}", self.url, src));
-                }
-            }
-
-            for source in document.select(&source_selector) {
-                if let Some(src) = source.value().attr("src") {
-                   page_data.urls.push(format!("{}{}", self.url, src));
+      
+        // Extract <img src="...">
+        let img_selector = Selector::parse("img").unwrap();
+        for element in document.select(&img_selector) {
+            if let Some(src) = element.value().attr("src") {
+                page_data.urls.push(format!("{}/{}", self.url, src.replace("/", "")));
             }   
         }
-
-        }
-        Err(e) => eprintln!("Failed to get page source: {}", e),
-    }
         Ok(page_data)
     }
 

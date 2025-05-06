@@ -1355,6 +1355,7 @@ dependencies = [
  "scraper",
  "serca",
  "tokio",
+ "url",
 ]
 
 [[package]]
