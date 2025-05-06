@@ -3,6 +3,8 @@
 /// The `serca` crate is a placeholder for awesome functionality.
 /// Replace this with your actual crate-level documentation.
 pub mod web;
+pub mod ai;
+pub mod plugin_manager;
 
 /// A simple greeting function for testing.
 pub fn hello() -> &'static str {
