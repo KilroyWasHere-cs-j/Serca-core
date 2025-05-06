@@ -44,22 +44,22 @@ impl InferenceEngine {
 
         match self.target {
             Target::UNKNOWN => return Err("Query type is unknown".to_string()),
-            Target::OLLAMA => self.handleOllama(query),
-            Target::COREML => self.handleCoreML(query),
-            Target::AIROUTER => self.handleAIRouter(query),
+            Target::OLLAMA => self.handle_ollama(query),
+            Target::COREML => self.handle_coreml(query),
+            Target::AIROUTER => self.handle_airouter(query),
         }
         // inference logic
 
         Ok(())
     }
 
-    fn handleOllama(&mut self, query: Query) {
+    fn handle_ollama(&mut self, query: Query) {
         let ollama = Ollama::default();
     }
 
-    fn handleCoreML(&mut self, query: Query) {}
+    fn handle_coreml(&mut self, query: Query) {}
 
-    fn handleAIRouter(&mut self, query: Query) {}
+    fn handle_airouter(&mut self, query: Query) {}
 }
 
 impl Query {

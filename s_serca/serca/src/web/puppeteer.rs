@@ -15,15 +15,12 @@ use std::process::Command;
 use sysinfo::{ Process, System, Signal };
 use url::Url;
 use std::path::Path;
+use std::io::Error;
 
 pub struct Puppeteer {
     //client: Arc<Mutex<Client>>,
     url_db: Vec<String>,
     max: i64,
-    c_total: i64,
-    marionettes: Vec<Marionette>,
-    cached_urls: Arc<Mutex<HashSet<String>>>,
-    black_list: Arc<Mutex<Vec<String>>>,
 }
 
 impl Puppeteer {
@@ -39,11 +36,7 @@ impl Puppeteer {
         Puppeteer {
             //client: Arc::new(Mutex::new(Client::new("http://localhost:4444").await.expect("10 bucks says geckodriver isn't running and/or isn't installed"))),
             url_db: lines,
-            max: 5,
-            c_total: 0,
-            marionettes: Vec::new(),
-            cached_urls: Arc::new(Mutex::new(HashSet::new())),
-            black_list: Arc::new(Mutex::new(Vec::new())),
+            max: 5, 
         }
     }
 
@@ -53,6 +46,7 @@ impl Puppeteer {
     }
   
     pub async fn control(mut self) -> Result<()>{
+        let max_cycles = self.max;
         loop {
             {
                 self.url_db = self.run_batch().await?;
@@ -63,7 +57,7 @@ impl Puppeteer {
         }
     }
 
-    async fn run_batch(&mut self) -> Result<Vec<String>> {
+    async fn run_batch(&mut self) -> Result<Vec<String>, Error> {
 
         let mut marionettes = vec![];
 
@@ -81,13 +75,11 @@ impl Puppeteer {
             let mari_handle = tokio::spawn(async move {
                 let mut marionette = Marionette::new()
                     .url(url.to_string())
-                    .id(0);
-                let data = marionette.walk().await
-                    .expect("Welp that page isn't accessible");
+                    .id(0); 
 
                 match marionette.walk().await {
                     Ok(data) => return data,
-                    Err(e) => PageData {
+                    Err(_e) => PageData {
                                 spawn_url: "NULL".to_string(),
                                 meta_data: "NULL".to_string(),
                                 urls: Vec::new(),
@@ -123,7 +115,7 @@ impl Puppeteer {
                     // Is URL is terminal
                     if Self::is_terminal_url(url) {
                         // Is terminal
-                        log_spent_url(url);
+                        let _ = log_spent_url(url);
                     } else {
                         // Is not terminal
                         uncovered_urls.push(url.to_string());
@@ -178,45 +170,7 @@ fn log_spent_url(url: &str) -> Result<()> {
         .append(true)
         .open("./spent_urls.txt")?;
 
-    writeln!(file, "{}", format!("{}", url));
+    writeln!(file, "{}", format!("{}", url))?;
     Ok(())
 }
 
-fn dump_file() -> Result<()> {
-    Ok(())
-}
-
-fn flush_to_file(page_data: PageData) -> Result<()> {
-    println!("Flushing page_data");
-
-    let mut file = OpenOptions::new()
-        .create(true)  // Create the file if it doesn't exist
-        .append(true)  // Append mode
-        .open("found_media.txt")?;
-
-    writeln!(file, "{}", format!("{}", "{------------------------------------------------}"));
-    writeln!(file, "{}", format!("MEDIA -> {:?}", page_data.media))?;
-    writeln!(file, "{}", format!("{}", "{------------------------------------------------}"));
-
-    let mut s_file = OpenOptions::new()
-        .create(true)
-        .append(true)
-        .open("found_urls.txt")?;
-
-    for url in page_data.urls {
-        writeln!(s_file, "{}", format!("{:?}", url));
-    }
-    
-    Ok(())
-}
-
-fn pop_first(s: &str) {
-    let mut chars = s.chars();
-
-    if chars.next() == Some('/') {
-        println!("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
-    }
-    else {
-        println!("hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh");
-    }
-}

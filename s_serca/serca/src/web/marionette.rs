@@ -16,15 +16,13 @@ pub struct PageData {
 pub struct Marionette {
     id: i64,
     url: String,
-    depth: u8,
 }
 
 impl Marionette {
     pub fn new() -> Self {
         Self {
             id: 0,
-            url: "https://example.com".to_string(), 
-            depth: 0,
+            url: "https://example.com".to_string(),
         }
     }
 
@@ -72,17 +70,6 @@ impl Marionette {
             }   
         }
         Ok(page_data)
-    }
-
-    fn pop_first(s: &str) {
-        let mut chars = s.chars();
-
-        if chars.next() == Some('/') {
-            println!("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA {:?}", chars);
-        }
-        else {
-            //println!("hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh {:?}", chars);
-        }
     }
 }
 
