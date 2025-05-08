@@ -1,3 +1,7 @@
+use reqwest::Client;
+use serde_json::json;
+use std::env;
+
 use ollama_rs::Ollama;
 use ollama_rs::generation::completion::request::GenerationRequest;
 
@@ -17,6 +21,7 @@ pub enum Target {
 pub struct InferenceEngine {
     target: Target,
     model: Model,
+    key: String,
 }
 
 #[derive(PartialEq, Clone, Debug)]
@@ -34,6 +39,7 @@ impl InferenceEngine {
                 model_name: "NULL".to_string(),
                 sys_prompt: "ah2".to_string(),
             },
+            key: "dsnmiUH(K BU&^op-sqjoxijsalk".to_string(),
         }
     }
 
@@ -42,8 +48,13 @@ impl InferenceEngine {
         self
     }
 
-    pub fn model_name(mut self, model: String) -> Self {
-        self.model.model_name = model;
+    pub fn model_name(mut self, model_name: String) -> Self {
+        self.model.model_name = model_name;
+        self
+    }
+
+    pub fn key(mut self, key: String) -> Self {
+        self.key = key;
         self
     }
 
@@ -82,7 +93,40 @@ impl InferenceEngine {
         Ok(query)
     }
 
-    async fn handle_airouter(&mut self, query: Query) -> Result<Query, String> {
+    async fn handle_airouter(&mut self, mut query: Query) -> Result<Query, String> {
+        let client = Client::new();
+
+        let request_body = json!({
+            "model": "meta-llama/llama-3.2-11b-vision-instruct:free",
+            "messages": [
+                {
+                    "role": "user",
+                    "content": [
+                        {
+                            "type": "text",
+                            "text": "What is in this image?"
+                        },
+                        {
+                            "type": "image_url",
+                            "image_url": {
+                                "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/dd/Gfp-wisconsin-madison-the-nature-boardwalk.jpg/2560px-Gfp-wisconsin-madison-the-nature-boardwalk.jpg"
+                            }
+                        }
+                    ]
+                }
+            ]
+        });
+
+        let response = client
+            .post("https://openrouter.ai/api/v1/chat/completions")
+            .header("Content-Type", "application/json")
+            .header("Authorization", format!("Bearer {}", self.key))
+            .json(&request_body)
+            .send()
+            .await
+            .unwrap();
+
+        query.query_responce = response.text().await.unwrap();
         Ok(query)
     }
 }

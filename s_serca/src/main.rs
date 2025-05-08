@@ -1,8 +1,8 @@
+use dotenv::dotenv;
 use serca;
-use serca::ai::inference::InferenceEngine;
-use serca::ai::inference::Query;
-use serca::ai::inference::Target;
-use serca::web::puppeteer::Puppeteer;
+use serca::ai::pipecontroller::PipeController;
+use std::env;
+use tokio::net::unix::pipe::pipe;
 
 use anyhow::Result;
 use std::fs;
@@ -10,6 +10,7 @@ use tokio;
 
 #[tokio::main]
 async fn main() -> Result<()> {
+    dotenv().ok();
     //fs::remove_file("spent_urls.txt").unwrap_or_else(|why| {
     //    println!("! {:?}", why.kind());
     //});
@@ -22,18 +23,8 @@ async fn main() -> Result<()> {
     //}
     //
 
-    let query = Query {
-        query_number: 1,
-        query_string: "Hello".to_string(),
-        query_responce: "".to_string(),
-    };
-
-    let mut inference_engine = InferenceEngine::new()
-        .target(Target::OLLAMA)
-        .model_name("llama3.2:latest".to_string());
-
-    let resp = inference_engine.inference(query).await;
-    println!("{:?}", resp);
+    let mut pipe_controller = PipeController::new();
+    pipe_controller.run_batch();
 
     println!("DONE");
     Ok(())

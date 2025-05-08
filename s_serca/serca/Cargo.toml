@@ -8,10 +8,11 @@ tokio = { version = "1", features = ["full"] }
 actix = "0.13.5"
 anyhow = "1.0.97"
 futures = "0.3.31"
-reqwest = "0.12.15"
+reqwest = { version = "0.11", features = ["json", "blocking", "rustls-tls"] }
 scraper = "0.23.1"
 url = "2.5.4"
 fantoccini = "0.21.5"
 sysinfo = "0.34.2"
 libloading = "0.8"
 ollama-rs = "=0.1.6"
+serde_json = "1.0"
