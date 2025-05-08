@@ -1,12 +1,12 @@
 use serca;
-use serca::web::puppeteer::Puppeteer;
 use serca::ai::inference::InferenceEngine;
-use serca::ai::inference::Target;
 use serca::ai::inference::Query;
+use serca::ai::inference::Target;
+use serca::web::puppeteer::Puppeteer;
 
-use tokio;
 use anyhow::Result;
 use std::fs;
+use tokio;
 
 #[tokio::main]
 async fn main() -> Result<()> {
@@ -21,19 +21,20 @@ async fn main() -> Result<()> {
     //    Err(e) => println!("The loop exited with an error {}", e)
     //}
     //
-    
+
+    let query = Query {
+        query_number: 1,
+        query_string: "Hello".to_string(),
+        query_responce: "".to_string(),
+    };
+
     let mut inference_engine = InferenceEngine::new()
-        .target(Target::OLLAMA);
+        .target(Target::OLLAMA)
+        .model_name("llama3.2:latest".to_string());
 
-    let query = Query{ 
-        query_number: 1, 
-        query_string: "Hello".to_string(), 
-        query_responce: "".to_string() };
+    let resp = inference_engine.inference(query).await;
+    println!("{:?}", resp);
 
-    inference_engine.inference(query).await;
-
-    println!("{}", query.query_responce);
     println!("DONE");
     Ok(())
 }
-
