@@ -64,15 +64,15 @@ impl PipeController {
         println!("-- {} batch/es to run", num_batches);
         println!("-- Batch size is {}", batch_size);
         println!("-- {} to retain thoughts batch to batch", bat_bat_thots);
-        self.run_batch(batch_size).await;
-        //for i in 0..num_batches {
-        //    println!("{}/{}", i , num_batches);
-        //    self.run_batch(batch_size).await;
-        //    if bat_bat_thots != true {
-        //        self.global_thoughts = "".to_string();
-        //        println!("Thoughts forgurt");
-        //    }
-        //}
+        //self.run_batch(batch_size).await;
+        for i in 0..num_batches {
+            println!("{}/{}", i , num_batches);
+            self.run_batch(batch_size).await;
+            if bat_bat_thots != true {
+                self.global_thoughts = "".to_string();
+                println!("Thoughts forgurt");
+            }
+        }
     }
 
     async fn run_batch(&mut self, batch_size: i64) {
@@ -80,19 +80,19 @@ impl PipeController {
             loop {
                 match self.step {
                     Step::STANDBY => {
-                        self.standby();
+                        self.standby().await;
                     }
                     Step::AUDIO => {
-                        self.audio();
+                        self.audio().await;
                     }
                     Step::VIDEO => {
-                        self.video();
+                        self.video().await;
                     }
                     Step::LLM => {
-                        self.llm();
+                        self.llm().await;
                     }
                     Step::END => {
-                        self.end();
+                        self.end().await;
                     }
                 }
                 self.next_step();
