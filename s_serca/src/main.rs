@@ -24,7 +24,8 @@ async fn main() -> Result<()> {
     //
 
     let mut pipe_controller = PipeController::new();
-    pipe_controller.run_batch();
+    pipe_controller.check();
+    pipe_controller.control(32, 4, true).await;
 
     println!("DONE");
     Ok(())

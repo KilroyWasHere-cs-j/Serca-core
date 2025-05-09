@@ -1,5 +1,5 @@
-#[derive(PartialEq)]
+#[derive(PartialEq, Debug, Clone)]
 pub struct Model {
     pub model_name: String,
-    pub sys_prompt: String,
+    //pub sys_prompt: String,
 }

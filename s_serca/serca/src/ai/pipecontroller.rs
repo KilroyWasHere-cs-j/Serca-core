@@ -1,19 +1,6 @@
-// let query = Query {
-//     query_number: 1,
-//     query_string: "Hello".to_string(),
-//     query_responce: "".to_string(),
-// };
-
-// let mut inference_engine = InferenceEngine::new()
-//     .target(Target::AIROUTER)
-//     .model_name("llama3.2:latest".to_string())
-//     .key(env::var("OPENROUTER_API_KEY").expect("OPENROUTER_API_KEY not set in .env"));
-
-// let resp = inference_engine.inference(query).await;
-// println!("{:?}", resp);
-
-use crate::ai::inference::InferenceEngine;
-use crate::ai::inference::Target;
+use crate::ai::model::Model;
+use crate::ai::inference::{ inference, Target, Query };
+use std::env;
 
 #[derive(Debug, PartialEq)]
 pub enum Step {
@@ -24,16 +11,41 @@ pub enum Step {
     END,
 }
 
+#[derive(Debug)]
+pub enum OS {
+    UNKNOWN,
+    LINUX,
+    WINDOWS,
+    MAC
+}
+
 pub struct PipeController {
     step: Step,
-    inference_engine: InferenceEngine,
+    os: OS,
+    global_thoughts: String,
 }
 
 impl PipeController {
     pub fn new() -> Self {
         PipeController {
             step: Step::STANDBY,
-            inference_engine: InferenceEngine::new(),
+            os: Self::get_os(),
+            global_thoughts: "".to_string(),
+        }
+    }
+
+    fn get_os() -> OS {
+        #[cfg(target_os = "windows")]
+        {
+            return OS::WINDOWS;
+        }
+        #[cfg(target_os = "linux")]
+        {
+            return OS::LINUX;
+        }
+        #[cfg(target_os = "macos")]
+        {
+            return OS::MACOS;
         }
     }
 
@@ -47,7 +59,23 @@ impl PipeController {
         }
     }
 
-    pub fn run_batch(&mut self) {
+    pub async fn control(&mut self, num_batches: i64, batch_size: i64, bat_bat_thots: bool) {
+        println!("\n-- Running batch/es");
+        println!("-- {} batch/es to run", num_batches);
+        println!("-- Batch size is {}", batch_size);
+        println!("-- {} to retain thoughts batch to batch", bat_bat_thots);
+        self.run_batch(batch_size).await;
+        //for i in 0..num_batches {
+        //    println!("{}/{}", i , num_batches);
+        //    self.run_batch(batch_size).await;
+        //    if bat_bat_thots != true {
+        //        self.global_thoughts = "".to_string();
+        //        println!("Thoughts forgurt");
+        //    }
+        //}
+    }
+
+    async fn run_batch(&mut self, batch_size: i64) {
         if self.step == Step::STANDBY {
             loop {
                 match self.step {
@@ -76,26 +104,38 @@ impl PipeController {
         }
     }
 
-    fn standby(&self) {
+    pub fn check(&self) {
+        println!("\n------------PipeController Check------------");
+        println!("{:?}", self.step);
+        println!("{:?}", self.os);
+        println!("--------------------------------------------\n");
+    }
+
+    async fn standby(&self) { 
         println!("Standby")
     }
 
-    fn audio(&mut self) {
-        // self.inference_engine
-        //     .target(Target::OLLAMA)
-        //     .model_name("llama3.2:latest".to_string());
+    async fn audio(&mut self) {
         println!("Audio")
     }
 
-    fn video(&self) {
+    async fn video(&self) {
         println!("Video")
     }
 
-    fn llm(&self) {
+    async fn llm(&self) { 
+        let query = Query {
+            query_string: "NULL".to_string(),
+            query_responce: "NULL".to_string(),
+            model: Model { model_name: "llama3.2:latest".to_string() },
+            target: Target::OLLAMA,
+        };
+        let resp = inference(query).await;
+
         println!("LLM")
     }
 
-    fn end(&self) {
+    async fn end(&self) {
         println!("END")
     }
 }
