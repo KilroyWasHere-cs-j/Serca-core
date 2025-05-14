@@ -1,28 +1,13 @@
-import http.server
-import socketserver
+from http.server import HTTPServer, BaseHTTPRequestHandler
 
-class Server:
-    port = 8080
-    handler = ''
+class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
 
-    def __init__(self):
-        Handler = self.http.server.SimpleHTTPRequestHandler
-        http = socketserver.TCPServer(("", self.port), Handler)
+    def do_GET(self):
+        self.send_response(200)
+        self.end_headers()
+        self.wfile.write(b'Hello, World!')
 
-
-# # Import libraries
-# import http.server
-# import socketserver
-
-# # Defining PORT number
-# PORT = 8080
-
-# # Creating handle
-# Handler = http.server.SimpleHTTPRequestHandler
-
-# # Creating TCPServer
-# http = socketserver.TCPServer(("", PORT), Handler)
-
-# # Getting logs
-# print("serving at port", PORT)
-# http.serve_forever()
+def start_server():
+    print("Starting server")
+    httpd = HTTPServer(('', 8000), SimpleHTTPRequestHandler)
+    httpd.serve_forever()
