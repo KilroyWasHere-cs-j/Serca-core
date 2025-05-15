@@ -19,10 +19,6 @@ from ollama import chat
 from ollama import ChatResponse
 
 def process(url, yolo, blip, blip_proc, stride=150):
-
-    stride_blip = 1000
-    stride_yolo = 20
-    stride_ocr = 30
     print("Processing video ", url)
     try:
         container = av.open(url)
