@@ -1,13 +1,13 @@
-from http.server import HTTPServer, BaseHTTPRequestHandler
+from fastapi import FastAPI, Request
+import uvicorn
 
-class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
+app = FastAPI()
 
-    def do_GET(self):
-        self.send_response(200)
-        self.end_headers()
-        self.wfile.write(b'Hello, World!')
+@app.post("/process")
+async def process_data(request: Request):
+    data = await request.json()
+    print("Received:", data)
+    return {"status": "ok"}
 
-def start_server():
-    print("Starting server")
-    httpd = HTTPServer(('', 8000), SimpleHTTPRequestHandler)
-    httpd.serve_forever()
+if __name__ == "__main__":
+    uvicorn.run(app, host="127.0.0.1", port=8000)

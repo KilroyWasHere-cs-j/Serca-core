@@ -51,8 +51,16 @@ def process(url, yolo, blip, blip_proc, stride=150):
         print("Issue processing video occurred")
 
     print("Asking LLaMA its thoughts...")
-    llama_prompt = generate_llama_prompt(yolos, texts, features, blips, url)
-    ask_llama(llama_prompt)
+    # llama_prompt = generate_llama_prompt(yolos, texts, features, blips, url)
+    # ask_llama(llama_prompt)
+
+    return {"yolo": yolos, "text": texts, "blip": blips, "url": url}
+
+def dump(yolos, texts, blips, url):
+    print(yolos)
+    print(texts)
+    print(blips)
+    print(url)
 
 def extract_features(frame):
     print("Features")
@@ -73,7 +81,8 @@ def inference_yolo(yolo, frame):
     img_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
     results = yolo(img_rgb)
     results.print()
-    return results
+    # Convert results to JSON-safe dict
+    return results.pandas().xyxy[0].to_dict(orient="records")
 
 def inference_blip(blip_model, blip_processor, frame):
     print("Blip")
@@ -132,6 +141,7 @@ def generate_llama_prompt(yolo_results, ocr_texts, features, blips, url):
             feat_summary = "n/a"
 
         blip_caption = blip_dict.get(idx, "n/a")
+        print(blip_caption)
 
         per_frame_reports.append(
             f"Frame {idx}:\n"
